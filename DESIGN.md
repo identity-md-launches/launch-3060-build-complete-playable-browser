@@ -4,7 +4,7 @@
 
 An approachable arcade game for the Squeekchain Genesis community. The visual idea is a tiny, torchlit underground fighting arena: crisp original pixel characters carry the personality, while a restrained dark interface keeps turns, health, energy, and the primary action readable. The initial screen contains the game name, arena, and Play action; it is a menu for a playable game.
 
-The implemented source is the authority. Rendered browser inspection was unavailable in this run; responsive behavior below describes CSS rules, not measured screenshots. The original sprites and arena were separately rasterized and inspected as assets.
+The implemented source is the authority. The responsive rules below come from the CSS. In the latest revision they were also checked in headless Chromium at widths from 320 to 1440px (320, 360, 390, 520, 700, 761, 820, 1024 and 1440), with screenshots of the menu, the progress strip and the battle arena (see `artifacts/validation.md`). Physical devices weren't tested.
 
 ## Colors
 
@@ -58,7 +58,7 @@ Spacing tokens are 4, 8, 12, 16, 24, 32, and 48px; component-specific optical ga
 Implemented adaptations:
 
 - Above 1100px, selection has three choices and a side loadout. At 1100px and below, loadout moves beneath the choices into a two-column stats/ability layout.
-- At 760px and below, previews become vertical compact buttons, action icons stack over their labels, optional desktop hints disappear, and career statistics wrap.
+- At 760px and below, previews become vertical compact buttons, action icons stack over their labels, and optional desktop hints disappear. In the progress strip, the level emblem and XP meter fill the first row (`.level-progress { flex: 1 0 calc(100% - 54px) }`) and the three career stats wrap onto a second row, so the XP label never shares a row with the numbers.
 - At 520px and below, the menu copy is above the pair of fighters; the 40px title and Play action remain near the top. The scene is at least 480px tall. Selection art and HUD spacing shrink; battle actions remain three columns. A wrong-network wallet label can wrap the header into another row.
 - At 640px and below, the wallet picker/account dialog is a full-width bottom sheet with safe-area padding. Other dialogs are inset and scroll internally.
 - At 350px and below, header and choice spacing tighten further. Leaderboard columns remain available in a contained scroll region.
@@ -80,7 +80,7 @@ Buttons, previews, and scene frames use 5px radii; smaller badges/meters use 1â€
 | --- | --- | --- |
 | `Icon` | `src/components/Icon.tsx` | One current-color outlined icon set; decorative SVGs have `aria-hidden` |
 | `.button`, `.icon-button`, `.wallet-button` | `src/styles.css` | Primary/secondary/text treatments, explicit hover, active, focus, and disabled states; primary action is apricot |
-| `Modal` | `src/components/Modal.tsx` | Native `dialog.showModal()`, labelled heading, close control, Escape, outside click, scroll containment, and focus return |
+| `Modal` | `src/components/Modal.tsx` | Native `dialog.showModal()`, labelled heading, close control, Escape, outside click, scroll containment, and focus return to the opener. An optional `returnFocus` ref covers openers that get replaced while the dialog opens, such as the lazy-loaded wallet button. |
 | `Sprite` | `src/components/GameViews.tsx` | Three local original SVG assets; decorative by default, meaningful alt available |
 | `Menu`, `Selection` | `src/components/GameViews.tsx` | Actionable scene, character buttons with `aria-pressed`, native difficulty radios with legend, visible ability costs |
 | `FighterHealth`, `BattleView` | `src/components/GameViews.tsx` | Named native meters, numeric values, guard label, turn feedback, 60-energy Special gate, polite combat/result text, recent history, replay |

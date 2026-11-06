@@ -1,4 +1,11 @@
-import { Component, lazy, Suspense, useState, type ReactNode } from "react";
+import {
+  Component,
+  createRef,
+  lazy,
+  Suspense,
+  useState,
+  type ReactNode,
+} from "react";
 import { Icon } from "./Icon";
 import { Modal } from "./Modal";
 const ConnectedWallet = lazy(() => import("./Wallet"));
@@ -7,6 +14,7 @@ class WalletBoundary extends Component<
   { failed: boolean; open: boolean }
 > {
   state = { failed: false, open: true };
+  trigger = createRef<HTMLButtonElement>();
   static getDerivedStateFromError() {
     return { failed: true, open: true };
   }
@@ -15,6 +23,7 @@ class WalletBoundary extends Component<
     return (
       <>
         <button
+          ref={this.trigger}
           className="wallet-button"
           aria-label="Connect wallet"
           onClick={() => this.setState({ open: true })}
@@ -25,6 +34,7 @@ class WalletBoundary extends Component<
           <Modal
             title="Wallet unavailable"
             onClose={() => this.setState({ open: false })}
+            returnFocus={this.trigger}
           >
             <p>
               Connection tools could not load. Check your connection and reload

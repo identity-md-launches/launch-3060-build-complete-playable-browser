@@ -76,18 +76,36 @@ The AI timer is cancelled when the battle changes. A synchronous battle referenc
 
 ## Validation
 
-The production build, TypeScript check, **11 engine tests** (including **900 simulated battles**) and **11 DOM interaction tests** pass. A fresh `npm ci` installation also passed build, typecheck, engine tests, and DOM tests; its production export matched the delivered export byte for byte. Relative asset checks and 14 declared color-pair calculations pass.
+Results from the final source of the latest revision (6 November 2026):
 
-**Browser limitation:** the supplied browser launcher failed with a socket-path error. Local Chromium terminated with SIGTRAP; WebKit could not create an automated page after its dependencies were supplied. The pinned taste probe was attempted and could not render. Mobile/desktop screenshots, actual overflow, rendered contrast, native focus behavior, real-wallet approval, and physical-device performance remain unverified. DOM tests are not browser or screen-reader certification.
+| Command | Result |
+| --- | --- |
+| `npm run build` | Pass; export in `dist/` (777,078 bytes, relative asset URLs) |
+| `npm run typecheck` | Pass (`tsc --noEmit`) |
+| `npm test` | 11/11 engine tests pass, including 900 seeded simulated battles |
+| `npm run test:ui` | 13/13 DOM interaction tests pass |
+| `npm run check:export`, `npm run check:colors` | Pass |
+| `npm run test:browser` (Chromium headless shell) | 14/14 Chromium checks pass: menu at a subpath, reflow at 320/390/820/1440, dialogs and focus return, empty leaderboard, all warriors and difficulties, combat and AI, full battle with save/replay/export, sound and motion toggles, axe scans, no runtime or resource errors |
+| Design-critic taste probe | 16/16 checks pass at 320, 390 and 1440 |
 
-On a browser-capable machine:
+Revision fixes, each reproduced in Chromium before the change and rechecked after it:
+
+- The mobile progress strip squeezed the level meter to 34px at 320px, so "0 / 100 XP" was drawn over the wins number. At 760px and below, the emblem and meter now take the first row and the career stats wrap underneath.
+- The battle result always said "Saved in this browser", and dismissing the save warning changed the header to "Local progress" even when the save had failed. The last save result is now stored separately from the warning.
+- Closing the wallet dialog the first time sent focus to `<body>`, because the lazy-loaded wallet replaced the button that opened it. Focus now returns to the current wallet button.
+- The menu had four short slogan-style lines. They are now one headline and plain sentences.
+- A Special hit on the right-hand fighter made the page 10px too wide at 320px. Effects are now clipped to the arena.
+
+**Limitations:** WebKit did not run because the installed build doesn't match Playwright 1.65. Physical phones, screen readers, real wallet approval and the live Squeekchain API weren't tested. DOM tests don't certify a browser or screen reader.
+
+To rerun the browser checks:
 
 ```sh
 npx playwright install chromium webkit
 npm run test:browser
 ```
 
-The script serves the actual export under `/preview/`, exercises menu, selection, battle, replay, saves, export and forfeit, and attempts reflow/screenshots at 320, 390, 820, and 1440 pixels plus axe checks. Results go in `test/scratch/browser-tests/`. It has not passed on this machine. See [artifacts/validation.md](artifacts/validation.md) for coverage, fixes, and limitations.
+The script serves the real export under `/preview/` and writes results to `test/scratch/browser-tests/`. Set `BATTLE_CHROMIUM` to a Chromium executable path to use one that's already installed. See [artifacts/validation.md](artifacts/validation.md) for coverage, findings and limitations.
 
 ## Submission budget
 

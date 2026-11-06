@@ -30,6 +30,9 @@ export default function App() {
   const [initial] = useState(loadProgress);
   const [progress, setProgress] = useState(initial.progress);
   const [warning, setWarning] = useState(initial.warning);
+  // Last write result, kept apart from the dismissible notice so the status
+  // only claims "saved" after a write actually succeeded.
+  const [saveFailed, setSaveFailed] = useState(false);
   const [screen, setScreen] = useState<"menu" | "select" | "battle">("menu");
   const [overlay, setOverlay] = useState<Overlay>(null);
   const [selected, setSelected] = useState<WarriorId>("pip");
@@ -41,8 +44,10 @@ export default function App() {
   useEffect(() => {
     if (savedProgress.current === progress) return;
     savedProgress.current = progress;
+    const saved = saveProgress(progress);
+    setSaveFailed(!saved);
     setWarning(
-      saveProgress(progress)
+      saved
         ? ""
         : "Progress cannot be saved in this browser. Keep this tab open to continue this session.",
     );
@@ -198,7 +203,7 @@ export default function App() {
         </div>
         <span className="local-save small">
           <Icon name="check" size={14} />
-          {warning ? "Session only" : "Local progress"}
+          {warning || saveFailed ? "Session only" : "Local progress"}
         </span>
       </nav>
       <main id="main" ref={pageRef} tabIndex={-1}>
@@ -240,6 +245,7 @@ export default function App() {
             onChoose={() => choose()}
             earnedXP={lastMatch?.xp ?? DIFFICULTIES[difficulty].xp}
             levelUp={levelUp}
+            saved={!saveFailed}
           />
         )}
         <ProgressBar progress={progress} />

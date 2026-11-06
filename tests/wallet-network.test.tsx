@@ -54,6 +54,22 @@ describe("Optional Squeekchain connection", () => {
     );
     expect(screen.queryByText("Wheel measurement: online")).toBeNull();
   });
+  it("returns focus to the wallet button after the first, lazy-loaded open", async () => {
+    const { WalletLauncher } = await import(
+      "../src/components/WalletLauncher"
+    );
+    render(<WalletLauncher />);
+    const launcher = screen.getByRole("button", { name: "Connect wallet" });
+    launcher.focus();
+    fireEvent.click(launcher);
+    const dialog = await screen.findByRole("dialog", {}, { timeout: 5000 });
+    expect(dialog.textContent).toContain("Connect a wallet");
+    fireEvent(dialog, new Event("cancel", { cancelable: true }));
+    await waitFor(() => expect(screen.queryByRole("dialog")).toBeNull());
+    const header = screen.getByRole("button", { name: "Connect wallet" });
+    expect(header).not.toBe(launcher);
+    expect(document.activeElement).toBe(header);
+  });
   it("lists desktop wallets and handles a missing provider with a recovery message", async () => {
     const { default: Wallet } = await import("../src/components/Wallet");
     render(<Wallet initialOpen />);

@@ -106,11 +106,7 @@ export function Menu({
             <br />
             <span>Big battles.</span>
           </h1>
-          <p>
-            A turn-based pixel brawler.
-            <br />
-            Pick your hamster. Make every turn count.
-          </p>
+          <p>A turn-based hamster battle game.</p>
           <button className="button primary play-now" onClick={onPlay}>
             <Icon name="play" size={18} />
             Play now
@@ -118,7 +114,7 @@ export function Menu({
           </button>
           <span className="play-note">
             <span className="status-dot" />
-            Free to play. No wallet needed.
+            Play free without a wallet.
           </span>
         </div>
         <div className="menu-fighters" aria-hidden="true">
@@ -156,7 +152,7 @@ export function Menu({
           <div>
             <h2 id="warrior-preview-heading">Find your fighting spirit</h2>
             <p className="small muted">
-              Three tiny warriors. No wrong choices.
+              Each has unique stats and a Special move.
             </p>
           </div>
           <span className="small muted desktop-only">
@@ -394,6 +390,7 @@ export function BattleView({
   onChoose,
   earnedXP,
   levelUp,
+  saved,
 }: {
   battle: Battle;
   onAction: (a: Action) => void;
@@ -402,6 +399,7 @@ export function BattleView({
   onChoose: () => void;
   earnedXP: number;
   levelUp: boolean;
+  saved: boolean;
 }) {
   const last = battle.events.at(-1);
   const finished = battle.turn === "finished";
@@ -490,7 +488,11 @@ export function BattleView({
             <strong className="xp-earned">
               +{earnedXP} XP {levelUp && <span>· Level up!</span>}
             </strong>
-            <span className="small muted">Saved in this browser</span>
+            <span className="small muted">
+              {saved
+                ? "Saved in this browser"
+                : "Session only · Progress could not be saved"}
+            </span>
           </div>
         ) : (
           <div className="turn-indicator">

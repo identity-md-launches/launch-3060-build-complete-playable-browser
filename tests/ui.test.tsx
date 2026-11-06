@@ -143,6 +143,33 @@ describe("Game interactions in a DOM environment", () => {
     expect(saved.xp).toBe(15);
     expect(saved.matches).toHaveLength(1);
   });
+  it("never reports a save that failed, even after the notice is dismissed", async () => {
+    vi.spyOn(Storage.prototype, "setItem").mockImplementation(() => {
+      throw new DOMException("blocked", "SecurityError");
+    });
+    render(<App />);
+    start();
+    let moves = 0;
+    while (screen.queryByRole("button", { name: /^Attack/ }) && moves < 40) {
+      const special = screen.getByRole("button", {
+        name: /^Special/,
+      }) as HTMLButtonElement;
+      click(special.disabled ? /^Attack/ : /^Special/);
+      await tick();
+      moves++;
+    }
+    expect(screen.getByText("Burrow champion!")).toBeTruthy();
+    expect(screen.queryByText("Saved in this browser")).toBeNull();
+    expect(
+      screen.getByText("Session only · Progress could not be saved"),
+    ).toBeTruthy();
+    expect(localStorage.getItem(STORAGE_KEY)).toBeNull();
+    expect(screen.getByText("Session only")).toBeTruthy();
+    click("Dismiss save notice");
+    expect(screen.queryByRole("alert")).toBeNull();
+    expect(screen.getByText("Session only")).toBeTruthy();
+    expect(screen.queryByText("Local progress")).toBeNull();
+  });
   it("keeps playing when saves are blocked or corrupted and persists preferences", () => {
     localStorage.setItem(STORAGE_KEY, "{broken");
     render(<App />);

@@ -1,15 +1,18 @@
-import { useEffect, useRef, type ReactNode } from "react";
+import { useEffect, useRef, type ReactNode, type RefObject } from "react";
 import { Icon } from "./Icon";
 export function Modal({
   title,
   children,
   onClose,
   wide = false,
+  returnFocus,
 }: {
   title: string;
   children: ReactNode;
   onClose: () => void;
   wide?: boolean;
+  /** Control to refocus on close when the opener was replaced while opening. */
+  returnFocus?: RefObject<HTMLElement | null>;
 }) {
   const ref = useRef<HTMLDialogElement>(null);
   useEffect(() => {
@@ -21,7 +24,9 @@ export function Modal({
     return () => {
       dialog?.close();
       document.body.style.overflow = old;
-      previous?.focus();
+      const target = returnFocus?.current;
+      if (target?.isConnected) target.focus();
+      if (!target || document.activeElement !== target) previous?.focus();
     };
   }, []);
   return (

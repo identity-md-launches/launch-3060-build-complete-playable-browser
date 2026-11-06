@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
 import {
   WagmiProvider,
   useConnection,
@@ -16,6 +16,9 @@ import { Modal } from "./Modal";
 
 export function Wallet({ initialOpen = false }: { initialOpen?: boolean }) {
   const [open, setOpen] = useState(initialOpen);
+  // The first open replaces the lazy launcher, so the dialog cannot rely on
+  // the element focused at mount time; return focus to this button instead.
+  const trigger = useRef<HTMLButtonElement>(null);
   const { address, isConnected, chainId } = useConnection();
   const connectors = useConnectors();
   const { mutate: connect, isPending, variables, error, reset } = useConnect();
@@ -57,6 +60,7 @@ export function Wallet({ initialOpen = false }: { initialOpen?: boolean }) {
   return (
     <>
       <button
+        ref={trigger}
         className={`wallet-button ${isConnected && chainId !== chain.id ? "wrong-chain" : ""}`}
         aria-label={
           isConnected && chainId !== chain.id
@@ -89,6 +93,7 @@ export function Wallet({ initialOpen = false }: { initialOpen?: boolean }) {
         <Modal
           title={isConnected ? "Your wallet" : "Connect a wallet"}
           onClose={() => setOpen(false)}
+          returnFocus={trigger}
         >
           <p className="muted">
             Optional for play. Connecting shares your address; it does not sync

@@ -900,6 +900,9 @@ main {
 .battle-arena {
   position: relative;
   isolation: isolate;
+  /* Keep hit bursts inside the scene; a Special on the right fighter
+     otherwise widened the page by 10px at 320px. */
+  overflow: clip;
   min-height: 408px;
   border: 1px solid #51414e;
   border-radius: 5px;
@@ -1828,7 +1831,8 @@ td {
   }
   .level-progress {
     max-width: none;
-    flex: 1;
+    /* Emblem + meter own the first row; career stats wrap beneath. */
+    flex: 1 0 calc(100% - 54px);
   }
   .career-stat {
     flex: 1;
