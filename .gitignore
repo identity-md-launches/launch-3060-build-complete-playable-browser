@@ -1,0 +1,9 @@
+# Explicit submission budget (maximum 8 MiB): src/scripts/tests/config 512 KiB;
+# public original art/fonts 1 MiB; dist complete runtime 5 MiB;
+# documentation/licenses/lockfile 1.5 MiB. Ignored generated paths: 0 bytes.
+**/node_modules/
+**/.vite/
+**/.cache/
+**/.npm/
+**/*.tsbuildinfo
+/test/scratch/

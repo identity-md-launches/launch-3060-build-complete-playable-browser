@@ -1,0 +1,42 @@
+{
+  "name": "battle-hamster",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "node scripts/tool.mjs vite --host 0.0.0.0",
+    "build": "node scripts/tool.mjs vite build",
+    "preview": "node scripts/tool.mjs vite preview --host 0.0.0.0",
+    "typecheck": "node scripts/tool.mjs typecheck",
+    "test": "node scripts/tool.mjs test",
+    "art": "node scripts/tool.mjs art",
+    "test:ui": "node scripts/tool.mjs test:ui",
+    "test:browser": "node scripts/tool.mjs browser",
+    "check:export": "node scripts/check-export.mjs",
+    "check:colors": "node scripts/check-colors.mjs"
+  },
+  "dependencies": {
+    "@coinbase/wallet-sdk": "^4.4.0",
+    "@tanstack/react-query": "^5.90.0",
+    "react": "^19.2.0",
+    "react-dom": "^19.2.0",
+    "viem": "^2.38.0",
+    "wagmi": "^3.0.0"
+  },
+  "devDependencies": {
+    "@axe-core/playwright": "^4.14.0",
+    "@resvg/resvg-js": "^2.6.2",
+    "@testing-library/react": "^16.3.3",
+    "@testing-library/user-event": "^14.6.8",
+    "@types/node": "^26.6.6",
+    "@types/react": "^19.2.0",
+    "@types/react-dom": "^19.2.0",
+    "jsdom": "^31.0.0",
+    "playwright": "^1.65.0",
+    "prettier": "^3.9.10",
+    "tsx": "^4.20.0",
+    "typescript": "^5.9.3",
+    "vite": "^7.2.0",
+    "vitest": "^5.1.0"
+  }
+}
