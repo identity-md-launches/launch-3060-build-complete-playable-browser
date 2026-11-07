@@ -1,0 +1,206 @@
+{
+  "schemaVersion": 1,
+  "startedAt": "2026-11-07T01:32:20.163Z",
+  "completedAt": "2026-11-07T01:32:44.136Z",
+  "method": "Ten independent scratch copies, each with one exact rule change; full unchanged engine/API tests run against each. Killed requires test assertions, exit 1 and all 38 tests executing. No production source is mutated.",
+  "command": "node scripts/verify-mutations.mjs",
+  "evidenceKind": "deliberately mutated test copies; no live hardware or real wallet",
+  "sourceSha256": {
+    "src/game.ts": "e88ce3a8b9ae77af593c0db738ee957ead96b1bf75e8ae45bbc7976bc2f5d21b",
+    "src/squeek.ts": "85e31094cce42c4455ad74fb6ce0663f249bbb36987e9db4ed209d47368077a4"
+  },
+  "baseline": {
+    "exitCode": 0,
+    "signal": null,
+    "tests": 38,
+    "passed": 38,
+    "failed": 0,
+    "failingTests": [],
+    "assertionFailure": false
+  },
+  "results": [
+    {
+      "id": "M01",
+      "description": "Accept non-hardware measurement provenance",
+      "file": "src/squeek.ts",
+      "before": "if (m.provenance !== \"hardware\")",
+      "after": "if (false)",
+      "killed": true,
+      "exitCode": 1,
+      "signal": null,
+      "tests": 38,
+      "passed": 37,
+      "failed": 1,
+      "failingTests": [
+        "Simulated data never receives HARDWARE LIVE, in any combination"
+      ],
+      "assertionFailure": true
+    },
+    {
+      "id": "M02",
+      "description": "Accept non-hardware wheel module provenance",
+      "file": "src/squeek.ts",
+      "before": "if (wheel && wheel.provenance !== \"hardware\")",
+      "after": "if (false)",
+      "killed": true,
+      "exitCode": 1,
+      "signal": null,
+      "tests": 38,
+      "passed": 37,
+      "failed": 1,
+      "failingTests": [
+        "Simulated data never receives HARDWARE LIVE, in any combination"
+      ],
+      "assertionFailure": true
+    },
+    {
+      "id": "M03",
+      "description": "Accept readings older than the stale threshold",
+      "file": "src/squeek.ts",
+      "before": "ageMs > m.staleAfterSeconds * 1000",
+      "after": "false",
+      "killed": true,
+      "exitCode": 1,
+      "signal": null,
+      "tests": 38,
+      "passed": 36,
+      "failed": 2,
+      "failingTests": [
+        "Simulated data never receives HARDWARE LIVE, in any combination",
+        "Each failure maps to an honest status"
+      ],
+      "assertionFailure": true
+    },
+    {
+      "id": "M04",
+      "description": "Allow non-live readings to grant modifiers",
+      "file": "src/squeek.ts",
+      "before": "signal.status !== \"live\" || !snapshot || !m",
+      "after": "!snapshot || !m",
+      "killed": true,
+      "exitCode": 1,
+      "signal": null,
+      "tests": 38,
+      "passed": 36,
+      "failed": 2,
+      "failingTests": [
+        "Simulated data never receives HARDWARE LIVE, in any combination",
+        "Offline, stale and simulated readings all use neutral modifiers"
+      ],
+      "assertionFailure": true
+    },
+    {
+      "id": "M05",
+      "description": "Remove Sprinting energy",
+      "file": "src/squeek.ts",
+      "before": "{ name: \"Sprinting\", minRpm: 60, energyPerTurn: 12 }",
+      "after": "{ name: \"Sprinting\", minRpm: 60, energyPerTurn: 0 }",
+      "killed": true,
+      "exitCode": 1,
+      "signal": null,
+      "tests": 38,
+      "passed": 35,
+      "failed": 3,
+      "failingTests": [
+        "Wheel RPM changes arena energy, at every tier boundary",
+        "Hardware RPM and distance measurably change a real battle turn",
+        "A slower wheel gives less than a faster wheel, turn for turn"
+      ],
+      "assertionFailure": true
+    },
+    {
+      "id": "M06",
+      "description": "Remove Marathon trail damage",
+      "file": "src/squeek.ts",
+      "before": "{ name: \"Marathon trail\", minKm: 5, damagePct: 15 }",
+      "after": "{ name: \"Marathon trail\", minKm: 5, damagePct: 0 }",
+      "killed": true,
+      "exitCode": 1,
+      "signal": null,
+      "tests": 38,
+      "passed": 35,
+      "failed": 3,
+      "failingTests": [
+        "Verified distance changes the damage bonus, at every tier boundary",
+        "An expired statistics snapshot gives no historical distance bonus",
+        "Hardware RPM and distance measurably change a real battle turn"
+      ],
+      "assertionFailure": true
+    },
+    {
+      "id": "M07",
+      "description": "Skip the distance Oracle acceptance check",
+      "file": "src/squeek.ts",
+      "before": "snapshot.oracleState !== \"accepted\"",
+      "after": "false",
+      "killed": true,
+      "exitCode": 1,
+      "signal": null,
+      "tests": 38,
+      "passed": 37,
+      "failed": 1,
+      "failingTests": [
+        "Distance gives nothing unless the Oracle and signer back it"
+      ],
+      "assertionFailure": true
+    },
+    {
+      "id": "M08",
+      "description": "Allow cached settlement events",
+      "file": "src/squeek.ts",
+      "before": "if (next.source !== \"live\") return null;",
+      "after": "// mutation: accept cached settlements",
+      "killed": true,
+      "exitCode": 1,
+      "signal": null,
+      "tests": 38,
+      "passed": 37,
+      "failed": 1,
+      "failingTests": [
+        "Cached or unavailable settlement data triggers nothing"
+      ],
+      "assertionFailure": true
+    },
+    {
+      "id": "M09",
+      "description": "Allow duplicate arena events",
+      "file": "src/game.ts",
+      "before": "if (battle.winner || battle.power.events.includes(event.key)) return battle;",
+      "after": "if (battle.winner) return battle;",
+      "killed": true,
+      "exitCode": 1,
+      "signal": null,
+      "tests": 38,
+      "passed": 37,
+      "failed": 1,
+      "failingTests": [
+        "An arena event applies once and its surge lasts one hit"
+      ],
+      "assertionFailure": true
+    },
+    {
+      "id": "M10",
+      "description": "Allow duplicate XP and match records",
+      "file": "src/game.ts",
+      "before": "if (!battle.winner || progress.matches.some((m) => m.id === battle.id))",
+      "after": "if (!battle.winner)",
+      "killed": true,
+      "exitCode": 1,
+      "signal": null,
+      "tests": 38,
+      "passed": 36,
+      "failed": 2,
+      "failingTests": [
+        "A final blow finishes immediately, prevents AI retaliation, and awards XP exactly once",
+        "Match records keep what the wheel did, and recording twice changes nothing"
+      ],
+      "assertionFailure": true
+    }
+  ],
+  "killed": 10,
+  "total": 10,
+  "passed": true,
+  "limitations": [
+    "Selected mutation checks only; not an exhaustive mutation analysis or an independent certification."
+  ]
+}

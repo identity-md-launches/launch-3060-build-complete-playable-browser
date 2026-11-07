@@ -4,6 +4,8 @@ A free, turn-based pixel-art battle game where a real hamster wheel powers the a
 
 **Public game:** https://battle-hamster-squeekchain-genes.imd.site/ (`battle-hamster-squeekchain-genes.identitymd.eth`). The network publishes this `dist/` under that name after the job completes. This build was tested locally and had not been published when this was written.
 
+**Revision readiness:** the six previously missing deliverables below are now included. Current checks pass the build, TypeScript, 38 engine/API tests and 41 DOM tests; Chromium passes 40/42 with two existing layout issues documented in the [readiness report](artifacts/genesis-readiness.md). Game source and the production export are preserved. This is a conditional readiness assessment, not a claim of a clean browser suite.
+
 | Deliverable | Where |
 | --- | --- |
 | Source, README, technical architecture | This file, `src/`, [DESIGN.md](DESIGN.md) |
@@ -15,7 +17,7 @@ A free, turn-based pixel-art battle game where a real hamster wheel powers the a
 
 ## Install, preview and rebuild
 
-Tested with Node.js 24 and npm 11. No environment file, API key, wallet or paid service is needed.
+This revision was checked with Node.js 22.22.1 and npm 9.2.0 using the existing lockfile. No environment file, API key, wallet or paid service is needed.
 
 ```sh
 npm ci
@@ -109,15 +111,15 @@ Security: no secrets exist in the source or export. `index.html` sets a Content-
 
 ## Evidence of real hardware integration
 
-Captured from the public API by `node scripts/tool.mjs live` on 7 November 2026 at 00:35 UTC. Full output is in [artifacts/hardware-evidence.json](artifacts/hardware-evidence.json).
+Recaptured from the public API on 7 November 2026 at 01:24 UTC using `scripts/capture-live-evidence.mjs`. [artifacts/hardware-evidence.json](artifacts/hardware-evidence.json) includes the actual public response bodies, selected headers, request IDs, timestamps and screenshot hash. Two status samples returned the same cached snapshot; they are not evidence of two device updates.
 
 **Live reading:** provenance `hardware`, freshness `online`, wheel module `usb-rp2040-a3144e-lm393` 0.2.1 `ready`, Oracle `accepted`, signer `ed25519`, core status `IDLE`, 0 RPM. The game classified it HARDWARE LIVE. Real distance from the last finished day (6.35 km) gave a real +15% damage: the same seeded Attack dealt 18 damage on neutral rules and 21 with the live modifiers.
 
-**The real export on real API responses, in Chromium:** the strip read `HARDWARE LIVE`, `Arena energy 0% · +0 energy a turn · +15% damage`, `Resting at 0.0 RPM · Marathon trail, 6.35 km`, and the first turn logged `Pip uses Attack for 19 damage. Squeek Power: +2 damage.` See [artifacts/live-hardware-390.png](artifacts/live-hardware-390.png).
+**The real export on real API responses, in Chromium:** the strip read `HARDWARE LIVE`, `Arena energy 0% · +0 energy a turn · +15% damage`, `Resting at 0.0 RPM · Marathon trail, 6.35 km`, and the first turn logged `Pip uses Attack for 16 damage. Squeek Power: +2 damage.` See [artifacts/live-hardware-390.png](artifacts/live-hardware-390.png). Public HTTPS responses were forwarded unmodified into the browser; direct browser-to-API transport was not tested.
 
-**Settlements:** the real count rose from 270 at 23:54 UTC to 274 at 00:35 UTC during this job. Passing those two real reads to the detector produced one `Settlement tremor`.
+**Settlements:** the retained real response at 00:11:49 UTC has count 271; the new response at 01:24:41 UTC has count 279. Comparing these two dated reads produced one `Settlement tremor`. This is a historical-to-current comparison, not an event witnessed arriving in the live browser session.
 
-**The wheel was not turning during this job,** because the hamster's active hours fall after the job's time limit. No moving wheel was observed live. To show RPM changing a battle, the rules were run on real recorded hardware values, including gaps between the device's signed wheel passages from `/v1/measurement/runs`. These are past measurements, used for this test only:
+**No moving wheel was observed live.** To show RPM changing a battle, the rules were run on real recorded hardware values, including gaps between the device's reported wheel passages from `/v1/measurement/runs`. These past RPM values were substituted into a copy of the live snapshot to exercise modifiers and combat; this does not verify current freshness or device signatures:
 
 | Recorded hardware value | Recorded at (UTC) | Tier | Player energy after one Attack (neutral: 55) |
 | ---: | --- | --- | ---: |
@@ -126,7 +128,14 @@ Captured from the public API by `node scripts/tool.mjs live` on 7 November 2026 
 | 76.183 RPM | 2026-11-05 04:18 | Sprinting | 67 |
 | 87.707 RPM (recorded peak) | 2026-11-06 06:43 | Sprinting | 67 |
 
-Run `NODE_USE_ENV_PROXY=1 node scripts/tool.mjs live` during those hours to capture a moving wheel. `NODE_USE_ENV_PROXY` is only needed behind a proxy.
+To capture again, run `node scripts/tool.mjs live`; it now writes to the linked artifact path. For the production-browser screenshot and full public responses, use:
+
+```sh
+npx playwright install chromium
+node --import ./node_modules/tsx/dist/loader.mjs scripts/capture-live-evidence.mjs --curl --settlement-baseline tests/fixtures/live-settlements.json
+```
+
+The capture needs a working Chromium runtime, public HTTPS access and fresh hardware data; it fails instead of creating a simulated live screenshot. `--curl` supports proxy access on Node versions whose `fetch` does not use the network proxy. The baseline is explicitly a previously recorded response. Run while the wheel moves to collect evidence of non-zero live RPM; no moving-wheel claim is made for this capture.
 
 ## Wallet and records
 
@@ -138,32 +147,33 @@ The game never asks for a private key or seed phrase and has no input that could
 
 ## Validation
 
-Results from the final source on 7 November 2026.
+Results rerun on the preserved source/export on 7 November 2026. Details, evidence provenance and outstanding findings are in [artifacts/validation.md](artifacts/validation.md).
 
 | Command | Result |
 | --- | --- |
-| `npm run build` | Pass. Export 803,501 bytes, relative asset URLs |
+| `npm run build` | Pass. Export 804,865 bytes, relative asset URLs |
 | `npm run typecheck` | Pass (`tsc --noEmit`) |
-| `npm test` | 35/35: engine, 900 seeded battles, API validation, a 3,840-case signal matrix proving no non-hardware state reaches HARDWARE LIVE, modifiers, events, XP |
-| `npm run test:ui` | 38/38 DOM tests: polling, timeouts, 429/503, malformed data, stale and offline transitions, frozen responses, every game flow, wallet |
-| `npm run test:browser -- --chromium-only` | 39/39 on the real export at a subpath. See below |
+| `npm test` | 38/38: engine, 900 seeded battles, API validation, a 15,360-case signal matrix checking live eligibility, modifiers, events, XP |
+| `npm run test:ui` | 41/41 DOM tests: polling, timeouts, 429/503, malformed data, stale and offline transitions, frozen responses, game flows, wallet |
+| `npm run test:browser -- --chromium-only` | **40/42.** Live badge overlap at 320px and menu text/sprite overlap at 1001px fail in this runtime. [Actual results](artifacts/browser-results.json) |
 | `npm run check:export`, `npm run check:colors` | Pass. 17/17 declared colour pairs |
-| Design-critic taste probe | 16/16 at 320, 390 and 1440 |
-| Mutation check | 10/10 deliberate rule breaks caught ([artifacts/mutation-check.json](artifacts/mutation-check.json)). One survived at first and exposed a weak test, which was strengthened |
+| Design-critic taste probe | [16/16](artifacts/design-review.json) at 320, 390 and 1440 with the external API blocked; does not override the live-state layout failures |
+| `node scripts/verify-mutations.mjs` | 10/10 deliberate rule breaks caught in isolated scratch copies ([artifacts/mutation-check.json](artifacts/mutation-check.json)) |
+| `node scripts/verify-deliverables.mjs` | Pass. Required files, Git inclusion, JSON, screenshot integrity, local documentation links and artifact size budgets |
 
 The Chromium run covers:
 
 - all ten API states, including simulated, replay, stale, counter fault, malformed and rate-limited
 - real-wheel values changing a battle while neutral states do not, and neutral rules applying the moment the signal is lost mid-battle
 - arena events firing once
-- every screen and dialog at 320, 375, 768, 1024 and 1440 with no overflow, and hero text clear of the fighters at 16 widths
+- menu and selection reflow at 320, 375, 390, 768, 1024 and 1440; the comprehensive live-state layout loop fails at 320 and the intermediate hero check fails at 1001
 - a touch-only phone session, and a full keyboard battle
 - XP recorded once across rapid clicks, reloads and two tabs
 - wallet connect, switch, restore, reject and disconnect, with no signature or transaction requested
 - axe scans of all screens and dialogs
 - no runtime or local resource errors
 
-`NODE_USE_ENV_PROXY=1 node scripts/tool.mjs live` passed against the real API.
+The real API capture passed separately from the mocked browser suite; see the command above and [hardware evidence](artifacts/hardware-evidence.json).
 
 To rerun the browser checks:
 
@@ -174,12 +184,15 @@ npm run test:browser
 
 The suite serves the real export under `/preview/` and answers the API with a test double built on real captured responses in `tests/fixtures/`, so every state can be reached on demand. These fixtures are test inputs and are not in `dist/`. Results go to `test/scratch/browser-tests/`.
 
+The delivered browser report retains the two failures. The first layout assertion stops the all-screen reflow loop, so this revision does not claim every dialog passed at every width. No gameplay source was changed to resolve this missing-documentation finding.
+
 ## Known limitations
 
-- **No moving wheel was seen live.** The wheel was idle for this whole job, so the live RPM path has only run at 0 RPM. Non-zero RPM was tested with real recorded values and with the test double.
-- **Browser-to-API transport was not tested directly.** This machine's sandbox proxy blocks Chromium from reaching the internet, so the live browser run passed real API responses through Node. `curl` confirmed `Access-Control-Allow-Origin: *` on GET and on the preflight, and the docs state that browsers may call these reads.
+- **Two layout checks fail:** at 320px Wheel details masks part of HARDWARE LIVE; at 1001px the menu paragraph crosses Pip. Both reproduce with this runtime's DejaVu Sans fallback. They are captured and recorded as outstanding in [validation](artifacts/validation.md#findings-and-disposition).
+- **No moving wheel was seen live.** The current capture is at 0 RPM. Non-zero RPM was tested with real recorded values and with the test double.
+- **Browser-to-API transport was not tested directly.** The live browser capture forwarded real public HTTPS responses through Node/curl. Captured GET responses include `Access-Control-Allow-Origin: *`; direct browser networking and preflight were not tested in this revision.
 - **"Hardware" is what the API reports.** The browser does not verify the device signature, and the docs reviewed do not publish a way to do so. The live signer is `ed25519` with no key slot, while the docs' example shows `trust-m`, and `/v1/measurement/runs` reports `profile: staging`.
-- **WebKit did not run.** It downloaded but cannot launch here because system libraries are missing, so Safari and iPhone behaviour is untested. Mobile checks are Chromium emulation, not physical phones.
+- **WebKit did not run in this revision.** Safari and iPhone behaviour is untested. Mobile checks are Chromium emulation, not physical phones.
 - **Real wallet approval was not tested.** The wallet checks used a test provider. Coinbase's popup flow was not exercised.
 - **Screen readers were not tested.** Axe scans do not certify accessibility, and 200% native zoom and RTL were not checked.
 - **Records are local.** They can be edited in browser storage, and an active battle ends on reload without a record.

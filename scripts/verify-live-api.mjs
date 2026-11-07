@@ -1,5 +1,5 @@
 // Reads the real Squeekchain API and runs the game's own rules on what comes
-// back. Writes docs/evidence/hardware-evidence.json. Run: node scripts/tool.mjs live
+// back. Writes artifacts/hardware-evidence.json. Run: node scripts/tool.mjs live
 // A proxied network needs NODE_USE_ENV_PROXY=1.
 import { mkdir, readFile, writeFile } from "node:fs/promises";
 import { dirname } from "node:path";
@@ -25,7 +25,7 @@ const arg = (name, fallback) => {
 const samples = Number(arg("samples", 3));
 const intervalMs = Number(arg("interval", 5)) * 1000;
 const baselineFile = arg("settlement-baseline");
-const output = arg("out", "docs/evidence/hardware-evidence.json");
+const output = arg("out", "artifacts/hardware-evidence.json");
 
 async function read(path) {
   const started = Date.now();

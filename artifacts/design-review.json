@@ -1,0 +1,127 @@
+{
+  "schemaVersion": 1,
+  "at": "2026-11-07T01:24:53.078Z",
+  "command": "node .imd/reads/skills/design-critic/scripts/taste.mjs --out test/scratch/taste --offline",
+  "evidenceKind": "Production menu in Chromium with external API blocked; separate browser-results.json tests mocked hardware states.",
+  "checks": [
+    {
+      "name": "render",
+      "passed": true,
+      "exitCode": 0,
+      "durationMs": 11040,
+      "output": "renders, no script errors or missing local files\nexternal hosts: api.squeekchain.com"
+    },
+    {
+      "name": "layout",
+      "passed": true,
+      "exitCode": 0,
+      "durationMs": 0,
+      "output": "no horizontal scroll at 320, 390 or 1440\nno text box overlaps another\nno floating control covers text\nno text cut off by overflow: hidden"
+    },
+    {
+      "name": "targets",
+      "passed": true,
+      "exitCode": 0,
+      "durationMs": 1,
+      "output": "all 13 controls at least 24px or spaced at 390\n3 under the 44px comfortable size"
+    },
+    {
+      "name": "contrast",
+      "passed": true,
+      "exitCode": 0,
+      "durationMs": 0,
+      "output": "all measured text meets 4.5:1 (3:1 large)\n16 text boxes over images, video, canvas or gradients not measured"
+    },
+    {
+      "name": "casing",
+      "passed": true,
+      "exitCode": 0,
+      "durationMs": 0,
+      "output": "no all-caps text in content\n1 more in header, nav or footer (brand chrome, not counted)"
+    },
+    {
+      "name": "tracking",
+      "passed": true,
+      "exitCode": 0,
+      "durationMs": 0,
+      "output": "letter-spacing natural in content (display type may run tight)"
+    },
+    {
+      "name": "eyebrows",
+      "passed": true,
+      "exitCode": 0,
+      "durationMs": 1,
+      "output": "no kicker labels above headings"
+    },
+    {
+      "name": "type-sizes",
+      "passed": true,
+      "exitCode": 0,
+      "durationMs": 0,
+      "output": "390: 5 sizes in use, 5 with one-offs (14px\u00d724, 16px\u00d73, 20px\u00d74, 24px\u00d75, 40px\u00d72)\n1440: 5 sizes in use, 6 with one-offs (14px\u00d731, 16px\u00d72, 20px\u00d72, 24px\u00d79, 40px\u00d71, 64px\u00d72)\nbar: 6 sizes used more than once, 8 counting one-offs, per width"
+    },
+    {
+      "name": "type-faces",
+      "passed": true,
+      "exitCode": 0,
+      "durationMs": 1,
+      "output": "families (2): pixelify, arial\nweights (3): 400, 600, 700"
+    },
+    {
+      "name": "glyphs",
+      "passed": true,
+      "exitCode": 0,
+      "durationMs": 0,
+      "output": "no em dashes or emoji in text"
+    },
+    {
+      "name": "slogans",
+      "passed": true,
+      "exitCode": 0,
+      "durationMs": 0,
+      "output": "1 two-beat lines; a stack is four or more, so keep the best and cut the rest:\n\"Small paws. Big battles.\" (#main > section.menu-arena:nth-of-type(2) > div.menu-copy:nth-of-type(2) > h1)"
+    },
+    {
+      "name": "repetition",
+      "passed": true,
+      "exitCode": 0,
+      "durationMs": 8,
+      "output": "no repeated lines"
+    },
+    {
+      "name": "copy-budget",
+      "passed": true,
+      "exitCode": 0,
+      "durationMs": 0,
+      "output": "prose on the first screen: 18 words at 390 (bar 60), 32 at 1440 (bar 90)\nall words on the first screen: 58 at 390, 96 at 1440\nwhole page: 124 words, 38 of them prose"
+    },
+    {
+      "name": "chrome",
+      "passed": true,
+      "exitCode": 0,
+      "durationMs": 0,
+      "output": "border and shadow together: 0\ncards inside cards: 0\ngradient text: 0"
+    },
+    {
+      "name": "motion",
+      "passed": true,
+      "exitCode": 0,
+      "durationMs": 0,
+      "output": "transition: all on 0 elements\nendless animations: 2; still running with reduced motion: 0"
+    },
+    {
+      "name": "share",
+      "passed": true,
+      "exitCode": 0,
+      "durationMs": 0,
+      "output": "title \"BATTLE HAMSTER \u00b7 Squeekchain Genesis\", favicon, og:title, og:image, description"
+    }
+  ],
+  "passed": 16,
+  "total": 16,
+  "limitations": [
+    "Probe covers the entry screen only; its 16/16 does not supersede the two live-state layout failures in browser-results.json.",
+    "Sixteen text boxes over art/gradients were not contrast-measured.",
+    "Three controls are under the recommended 44px comfortable target size but pass the 24px/spacing check."
+  ]
+}

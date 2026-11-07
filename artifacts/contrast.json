@@ -1,0 +1,141 @@
+{
+  "scope": "Declared solid token pairs only. Not a rendered contrast audit.",
+  "results": [
+    {
+      "role": "Primary text on page",
+      "foreground": "#f3ece3",
+      "background": "#13131c",
+      "ratio": 15.75,
+      "minimum": 4.5,
+      "passed": true
+    },
+    {
+      "role": "Secondary text on page",
+      "foreground": "#b1aabd",
+      "background": "#13131c",
+      "ratio": 8.22,
+      "minimum": 4.5,
+      "passed": true
+    },
+    {
+      "role": "Subtle text on page",
+      "foreground": "#928a9e",
+      "background": "#13131c",
+      "ratio": 5.58,
+      "minimum": 4.5,
+      "passed": true
+    },
+    {
+      "role": "Primary text on surface",
+      "foreground": "#f3ece3",
+      "background": "#1c1c27",
+      "ratio": 14.39,
+      "minimum": 4.5,
+      "passed": true
+    },
+    {
+      "role": "Secondary text on surface",
+      "foreground": "#b1aabd",
+      "background": "#1c1c27",
+      "ratio": 7.51,
+      "minimum": 4.5,
+      "passed": true
+    },
+    {
+      "role": "Primary button label",
+      "foreground": "#302018",
+      "background": "#efb679",
+      "ratio": 8.65,
+      "minimum": 4.5,
+      "passed": true
+    },
+    {
+      "role": "Primary hover label",
+      "foreground": "#302018",
+      "background": "#f8cb99",
+      "ratio": 10.4,
+      "minimum": 4.5,
+      "passed": true
+    },
+    {
+      "role": "Secondary button label",
+      "foreground": "#f3ece3",
+      "background": "#242431",
+      "ratio": 13.06,
+      "minimum": 4.5,
+      "passed": true
+    },
+    {
+      "role": "Focus ring on page",
+      "foreground": "#f9d69f",
+      "background": "#13131c",
+      "ratio": 13.31,
+      "minimum": 3,
+      "passed": true
+    },
+    {
+      "role": "Focus ring on raised surface",
+      "foreground": "#f9d69f",
+      "background": "#242431",
+      "ratio": 11.04,
+      "minimum": 3,
+      "passed": true
+    },
+    {
+      "role": "Success text on surface",
+      "foreground": "#9ccfb5",
+      "background": "#1c1c27",
+      "ratio": 9.65,
+      "minimum": 4.5,
+      "passed": true
+    },
+    {
+      "role": "Energy text on surface",
+      "foreground": "#b6a1e5",
+      "background": "#1c1c27",
+      "ratio": 7.41,
+      "minimum": 4.5,
+      "passed": true
+    },
+    {
+      "role": "Stale signal on surface",
+      "foreground": "#eccb7d",
+      "background": "#1c1c27",
+      "ratio": 10.77,
+      "minimum": 4.5,
+      "passed": true
+    },
+    {
+      "role": "Offline signal on surface",
+      "foreground": "#f19a9e",
+      "background": "#1c1c27",
+      "ratio": 7.92,
+      "minimum": 4.5,
+      "passed": true
+    },
+    {
+      "role": "Signal text on raised surface",
+      "foreground": "#eccb7d",
+      "background": "#242431",
+      "ratio": 9.77,
+      "minimum": 4.5,
+      "passed": true
+    },
+    {
+      "role": "Health fill on track",
+      "foreground": "#9ccfb5",
+      "background": "#353441",
+      "ratio": 6.98,
+      "minimum": 3,
+      "passed": true
+    },
+    {
+      "role": "Energy fill on track",
+      "foreground": "#b6a1e5",
+      "background": "#353441",
+      "ratio": 5.36,
+      "minimum": 3,
+      "passed": true
+    }
+  ]
+}

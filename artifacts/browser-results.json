@@ -1,0 +1,289 @@
+{
+  "schemaVersion": 1,
+  "capturedAt": "2026-11-07T01:27:49.427594+00:00",
+  "command": "npm run test:browser -- --chromium-only",
+  "browser": "Chromium 158.0.8127.18 / Playwright 1.65.0",
+  "export": "dist/ served under /preview/",
+  "evidenceKind": "Mocked API responses based on captured hardware fixtures; mock EIP-6963 wallet. Not live hardware or a real wallet approval.",
+  "fontEnvironment": "Arial/Helvetica unavailable; system sans-serif fallback is DejaVu Sans. Local Pixelify font loaded.",
+  "total": 42,
+  "passed": 40,
+  "failed": 2,
+  "results": [
+    {
+      "name": "chromium: launch",
+      "passed": true,
+      "ms": 150
+    },
+    {
+      "name": "chromium: menu, relative subpath assets and first-screen primary action",
+      "passed": true,
+      "ms": 243
+    },
+    {
+      "name": "chromium: menu reflow at 320px",
+      "passed": true,
+      "ms": 288
+    },
+    {
+      "name": "chromium: menu reflow at 375px",
+      "passed": true,
+      "ms": 303
+    },
+    {
+      "name": "chromium: menu reflow at 390px",
+      "passed": true,
+      "ms": 327
+    },
+    {
+      "name": "chromium: menu reflow at 768px",
+      "passed": true,
+      "ms": 355
+    },
+    {
+      "name": "chromium: menu reflow at 1024px",
+      "passed": true,
+      "ms": 469
+    },
+    {
+      "name": "chromium: menu reflow at 1440px",
+      "passed": true,
+      "ms": 436
+    },
+    {
+      "name": "chromium: help dialog, Escape and focus restoration",
+      "passed": true,
+      "ms": 226
+    },
+    {
+      "name": "chromium: empty leaderboard contains no invented scores",
+      "passed": true,
+      "ms": 217
+    },
+    {
+      "name": "chromium: all character choices, difficulty radios and keyboard controls",
+      "passed": true,
+      "ms": 1141
+    },
+    {
+      "name": "chromium: attack, defend, special, AI response and rapid-click lock",
+      "passed": true,
+      "ms": 539
+    },
+    {
+      "name": "chromium: complete a battle, persist XP, replay and export records",
+      "passed": true,
+      "ms": 1939
+    },
+    {
+      "name": "chromium: sound, animation toggle and reduced-motion behavior",
+      "passed": true,
+      "ms": 392
+    },
+    {
+      "name": "chromium: accessibility scan of menu, selection and battle",
+      "passed": true,
+      "ms": 4552
+    },
+    {
+      "name": "chromium: no runtime or local resource errors",
+      "passed": true,
+      "ms": 0
+    },
+    {
+      "name": "chromium: API state idle shows HARDWARE LIVE",
+      "passed": true,
+      "ms": 914
+    },
+    {
+      "name": "chromium: API state sprinting shows HARDWARE LIVE",
+      "passed": true,
+      "ms": 1005
+    },
+    {
+      "name": "chromium: API state simulated shows SIMULATED",
+      "passed": true,
+      "ms": 776
+    },
+    {
+      "name": "chromium: API state replay shows SIMULATED",
+      "passed": true,
+      "ms": 845
+    },
+    {
+      "name": "chromium: API state stale shows STALE",
+      "passed": true,
+      "ms": 900
+    },
+    {
+      "name": "chromium: API state fault shows OFFLINE",
+      "passed": true,
+      "ms": 1136
+    },
+    {
+      "name": "chromium: API state noReading shows OFFLINE",
+      "passed": true,
+      "ms": 1148
+    },
+    {
+      "name": "chromium: API state offline shows OFFLINE",
+      "passed": true,
+      "ms": 944
+    },
+    {
+      "name": "chromium: API state malformed shows OFFLINE",
+      "passed": true,
+      "ms": 1077
+    },
+    {
+      "name": "chromium: API state rate-limited shows OFFLINE",
+      "passed": true,
+      "ms": 1284
+    },
+    {
+      "name": "chromium: real-wheel values change a battle, neutral states do not",
+      "passed": true,
+      "ms": 6784,
+      "detail": {
+        "sprinting": {
+          "energy": 67,
+          "damage": 21,
+          "log": "Pip uses Attack for 21 damage. Squeek Power: +3 damage, +12 energy."
+        },
+        "running": {
+          "energy": 63,
+          "damage": 21,
+          "log": "Pip uses Attack for 21 damage. Squeek Power: +3 damage, +8 energy."
+        },
+        "idle": {
+          "energy": 55,
+          "damage": 21,
+          "log": "Pip uses Attack for 21 damage. Squeek Power: +3 damage."
+        },
+        "simulated": {
+          "energy": 55,
+          "damage": 18,
+          "log": "Pip uses Attack for 18 damage."
+        },
+        "offline": {
+          "energy": 55,
+          "damage": 18,
+          "log": "Pip uses Attack for 18 damage."
+        }
+      }
+    },
+    {
+      "name": "chromium: losing the signal mid-battle goes neutral at once",
+      "passed": true,
+      "ms": 977
+    },
+    {
+      "name": "chromium: a new settlement triggers one arena event in battle",
+      "passed": true,
+      "ms": 3010
+    },
+    {
+      "name": "chromium: a Block rush surge is cancelled when the signal drops before the hit",
+      "passed": true,
+      "ms": 7156,
+      "detail": {
+        "offline": {
+          "damage": 18
+        },
+        "simulated": {
+          "damage": 18
+        },
+        "stale": {
+          "damage": 18
+        }
+      }
+    },
+    {
+      "name": "chromium: a defeat behind the Leave dialog hands focus to Battle again",
+      "passed": true,
+      "ms": 8154,
+      "detail": {
+        "turns": 9,
+        "dialogs": 0,
+        "active": "Battle again",
+        "tag": "BUTTON"
+      }
+    },
+    {
+      "name": "chromium: two tabs finishing at the same moment keep both battles",
+      "passed": true,
+      "ms": 2162,
+      "detail": [
+        {
+          "losses": 2,
+          "xp": 30,
+          "matches": 2,
+          "strip": "1\nLevel 1\n30 / 100 XP\n0\nWins\n2\nBattles\n0\nBest streak"
+        },
+        {
+          "losses": 2,
+          "xp": 30,
+          "matches": 2,
+          "strip": "1\nLevel 1\n30 / 100 XP\n0\nWins\n2\nBattles\n0\nBest streak"
+        }
+      ]
+    },
+    {
+      "name": "chromium: every screen reflows at 320, 375, 768, 1024 and 1440",
+      "passed": false,
+      "ms": 1131,
+      "error": "AssertionError [ERR_ASSERTION]: power strip overlaps\n+ actual - expected\n\n+ [\n+   'HARDWARE LIVE / Wheel details'\n+ ]\n- []\n\n    at noOverlap (file://./scripts/verify-power.mjs:237:10)\n    at async file://./scripts/verify-power.mjs:583:11\n    at async check (file://./scripts/verify-browser.mjs:55:20)\n    at async powerChecks (file://./scripts/verify-power.mjs:535:3)\n    at async file://./scripts/verify-browser.mjs:373:5"
+    },
+    {
+      "name": "chromium: hero text never touches the fighters at any width",
+      "passed": false,
+      "ms": 884,
+      "error": "AssertionError [ERR_ASSERTION]: text meets a sprite at 1001\n+ actual - expected\n\n+ [\n+   'A turn-based battle '\n+ ]\n- []\n\n    at file://./scripts/verify-power.mjs:682:16\n    at async check (file://./scripts/verify-browser.mjs:55:20)\n    at async powerChecks (file://./scripts/verify-power.mjs:637:3)\n    at async file://./scripts/verify-browser.mjs:373:5"
+    },
+    {
+      "name": "chromium: a phone-sized touch session plays a full battle",
+      "passed": true,
+      "ms": 3985
+    },
+    {
+      "name": "chromium: accessibility scan of the Squeek Power, records and wallet dialogs",
+      "passed": true,
+      "ms": 6440
+    },
+    {
+      "name": "chromium: main action and live status sit on the first screen at 390",
+      "passed": true,
+      "ms": 873
+    },
+    {
+      "name": "chromium: a whole battle works from the keyboard, and focus is kept",
+      "passed": true,
+      "ms": 2220
+    },
+    {
+      "name": "chromium: XP is recorded once, across rapid clicks, reloads and tabs",
+      "passed": true,
+      "ms": 3787
+    },
+    {
+      "name": "chromium: wallet connects, switches to Sepolia, restores and disconnects",
+      "passed": true,
+      "ms": 2168
+    },
+    {
+      "name": "chromium: a rejected wallet prompt recovers, and play is unaffected",
+      "passed": true,
+      "ms": 1389
+    },
+    {
+      "name": "chromium: a phone browser gets the wallet links and Smart Wallet",
+      "passed": true,
+      "ms": 1145
+    }
+  ],
+  "limitations": [
+    "Two layout assertions fail with this sans-serif fallback: live badge and Wheel details overlap at 320px; menu paragraph crosses a sprite at 1001px. See validation.md.",
+    "WebKit/Safari and physical mobile devices not run in this revision.",
+    "No real wallet approvals, signatures or transactions."
+  ]
+}

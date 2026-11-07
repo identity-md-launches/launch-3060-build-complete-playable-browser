@@ -7,3 +7,24 @@
 **/.npm/
 **/*.tsbuildinfo
 /test/scratch/
+
+# Review response budget: 4 KiB, within the existing documentation budget.
+!/.imd-responses.json
+
+# Delivered evidence: at most 1 MiB within the existing 1.5 MiB documentation
+# budget. hardware-evidence.json <= 384 KiB; live screenshot <= 128 KiB;
+# reports/results/contrast/licenses <= 128 KiB; review screenshots <= 384 KiB.
+# Explicit names prevent an external artifacts/ ignore from dropping delivery.
+!/artifacts/
+/artifacts/*
+!/artifacts/genesis-readiness.md
+!/artifacts/hardware-evidence.json
+!/artifacts/live-hardware-390.png
+!/artifacts/validation.md
+!/artifacts/browser-results.json
+!/artifacts/mutation-check.json
+!/artifacts/contrast.json
+!/artifacts/design-review.json
+!/artifacts/DESIGN-GUIDANCE-LICENSE.txt
+!/artifacts/layout-320.png
+!/artifacts/layout-1001.png

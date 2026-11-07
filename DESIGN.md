@@ -6,7 +6,7 @@ An approachable arcade game for the Squeekchain Genesis community. The visual id
 
 The Genesis edition adds one surface, the Squeek Power strip, which sits above every screen and reports the real wheel. It reuses the existing panel treatment, so the arena stays the visual focus. Its status always has an icon and a word, never colour alone.
 
-The implemented source is the authority. The responsive rules below come from the CSS and were checked in headless Chromium at 320, 375, 390, 768, 1024 and 1440, with the hero also checked at 16 widths (see `artifacts/validation.md`). Physical devices and WebKit weren't tested.
+The implemented source is the authority. The responsive rules below come from the CSS. Revision checks ran in Chromium at 320, 375, 390, 768, 1024 and 1440; two existing layout failures reproduced at 320 and 1001px with the DejaVu Sans fallback (see [validation](artifacts/validation.md)). Game source and tokens remain unchanged in this documentation revision. Physical devices and WebKit weren't tested.
 
 ## Colors
 
@@ -33,7 +33,7 @@ Semantic values live in `:root` in `src/styles.css`. The interface has one dark 
 
 Character colors encode identity, with names, role text, and icons as redundant cues. Guard status and health always have text/numeric equivalents. Arena/art palettes are independently defined in `scripts/art.mjs`; they are not extra UI themes.
 
-Calculated solid token contrast includes primary text/page **15.75:1**, supporting text/page **8.22:1**, subtle text/page **5.58:1**, primary-button ink/fill **8.65:1**, STALE on surface **10.77:1** and OFFLINE on surface **7.92:1**. These are calculations from declared values, not measurements over the rendered arena. All 17 computed pairs and the scope limit are in `artifacts/contrast.json`. The taste probe's rendered contrast check also passes at 320, 390 and 1440.
+Calculated solid token contrast includes primary text/page **15.75:1**, supporting text/page **8.22:1**, subtle text/page **5.58:1**, primary-button ink/fill **8.65:1**, STALE on surface **10.77:1** and OFFLINE on surface **7.92:1**. These are calculations from declared values, not measurements over the rendered arena. All 17 computed pairs and the scope limit are in [contrast results](artifacts/contrast.json). The taste probe's rendered solid-background contrast check passes at 320, 390 and 1440 with the API blocked; it excludes 16 text boxes over art/gradients.
 
 ## Typography
 
@@ -69,7 +69,7 @@ Implemented adaptations:
 - At 350px and below, header and choice spacing tighten further. Leaderboard columns remain available in a contained scroll region.
 - At 1500px and above, the menu scene minimum height increases from 436px to 456px.
 
-Reflow was checked in Chromium on every screen and dialog at 320, 375, 768, 1024 and 1440. Native 200% zoom and RTL mirroring were not verified.
+Menu and selection reflow checks pass at 320, 375, 390, 768, 1024 and 1440 in Chromium. The comprehensive all-screen/dialog check stops at a live badge/Wheel details overlap at 320px; the hero paragraph also crosses a sprite at 1001px. These are outstanding limitations, with screenshots in [validation](artifacts/validation.md#findings-and-disposition). Native 200% zoom and RTL mirroring were not verified.
 
 ## Elevation & Depth
 
