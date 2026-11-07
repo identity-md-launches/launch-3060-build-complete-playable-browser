@@ -52,7 +52,11 @@ class WalletBoundary extends Component<
 }
 // Keep all wallet SDKs outside the game's initial download. Stored connections
 // restore on reload; a new visitor loads the SDK only when choosing Connect.
-export function WalletLauncher() {
+export function WalletLauncher({
+  localMatches = 0,
+}: {
+  localMatches?: number;
+}) {
   const [loaded, setLoaded] = useState(() => {
     try {
       return Boolean(localStorage.getItem("wagmi.store"));
@@ -81,7 +85,7 @@ export function WalletLauncher() {
   return loaded ? (
     <WalletBoundary>
       <Suspense fallback={launcher(true)}>
-        <ConnectedWallet initialOpen={open} />
+        <ConnectedWallet initialOpen={open} localMatches={localMatches} />
       </Suspense>
     </WalletBoundary>
   ) : (

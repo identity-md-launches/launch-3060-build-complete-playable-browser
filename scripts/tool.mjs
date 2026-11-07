@@ -61,13 +61,25 @@ if (command === "typecheck") {
   params = [];
 } else if (command === "browser") {
   bin = resolve("scripts/verify-browser.mjs");
-  params = [];
+  params = args;
+} else if (command === "live") {
+  bin = "--import";
+  params = [
+    `${deps}/tsx/dist/loader.mjs`,
+    "scripts/verify-live-api.mjs",
+    ...args,
+  ];
 } else if (command === "test:ui") {
   bin = `${deps}/vitest/vitest.mjs`;
   params = ["run", "--config", "vitest.config.mjs"];
 } else if (command === "test") {
   bin = "--import";
-  params = [`${deps}/tsx/dist/loader.mjs`, "--test", "tests/engine.test.ts"];
+  params = [
+    `${deps}/tsx/dist/loader.mjs`,
+    "--test",
+    "tests/engine.test.ts",
+    "tests/squeek.test.ts",
+  ];
 } else {
   bin = `${deps}/vite/bin/vite.js`;
   params = args;

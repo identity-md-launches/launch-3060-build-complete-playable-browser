@@ -7,7 +7,6 @@ import {
   screen,
   waitFor,
 } from "@testing-library/react";
-import { Network } from "../src/components/Network";
 
 afterEach(() => {
   cleanup();
@@ -15,49 +14,9 @@ afterEach(() => {
   vi.unstubAllGlobals();
   localStorage.clear();
 });
-describe("Optional Squeekchain connection", () => {
-  it("waits for a request, handles API failure, and retries without affecting play", async () => {
-    const fetchMock = vi
-      .fn()
-      .mockRejectedValue(new TypeError("Network request failed"));
-    vi.stubGlobal("fetch", fetchMock);
-    render(<Network />);
-    expect(fetchMock).not.toHaveBeenCalled();
-    fireEvent.click(screen.getByRole("button", { name: "Check network" }));
-    await waitFor(() =>
-      expect(screen.getByRole("status").textContent).toContain(
-        "Unable to reach the public API",
-      ),
-    );
-    expect(fetchMock.mock.calls[0][0]).toBe(
-      "https://api.squeekchain.com/v1/status",
-    );
-    fireEvent.click(screen.getByRole("button", { name: "Check again" }));
-    await waitFor(() => expect(fetchMock).toHaveBeenCalledTimes(2));
-  });
-  it("treats malformed or unsupported JSON as unknown, never as zero activity", async () => {
-    vi.stubGlobal(
-      "fetch",
-      vi.fn().mockResolvedValue(
-        new Response("null", {
-          status: 200,
-          headers: { "Content-Type": "application/json" },
-        }),
-      ),
-    );
-    render(<Network />);
-    fireEvent.click(screen.getByRole("button", { name: "Check network" }));
-    await waitFor(() =>
-      expect(screen.getByRole("status").textContent).toContain(
-        "Unsupported API response",
-      ),
-    );
-    expect(screen.queryByText("Wheel measurement: online")).toBeNull();
-  });
+describe("Wallet connection", () => {
   it("returns focus to the wallet button after the first, lazy-loaded open", async () => {
-    const { WalletLauncher } = await import(
-      "../src/components/WalletLauncher"
-    );
+    const { WalletLauncher } = await import("../src/components/WalletLauncher");
     render(<WalletLauncher />);
     const launcher = screen.getByRole("button", { name: "Connect wallet" });
     launcher.focus();
@@ -83,6 +42,17 @@ describe("Optional Squeekchain connection", () => {
         "No browser wallet found",
       ),
     );
+  });
+  it("separates local battle records from confirmed on-chain records", async () => {
+    const { default: Wallet } = await import("../src/components/Wallet");
+    render(<Wallet initialOpen localMatches={3} />);
+    expect(screen.getByText("3 in this browser")).toBeTruthy();
+    expect(screen.getByText("Confirmed on-chain battle records")).toBeTruthy();
+    expect(
+      screen.getByText("None. Battles are not sent to any chain."),
+    ).toBeTruthy();
+    expect(document.body.textContent).not.toMatch(/private key|seed phrase/i);
+    expect(document.querySelector("input, textarea")).toBeNull();
   });
   it("offers all four mobile wallet browsers and Coinbase Smart Wallet", async () => {
     vi.spyOn(navigator, "userAgent", "get").mockReturnValue(

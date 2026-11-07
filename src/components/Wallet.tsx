@@ -14,7 +14,13 @@ import { chain, config, OPEN_IN } from "../wallet";
 import { Icon } from "./Icon";
 import { Modal } from "./Modal";
 
-export function Wallet({ initialOpen = false }: { initialOpen?: boolean }) {
+export function Wallet({
+  initialOpen = false,
+  localMatches = 0,
+}: {
+  initialOpen?: boolean;
+  localMatches?: number;
+}) {
   const [open, setOpen] = useState(initialOpen);
   // The first open replaces the lazy launcher, so the dialog cannot rely on
   // the element focused at mount time; return focus to this button instead.
@@ -99,6 +105,16 @@ export function Wallet({ initialOpen = false }: { initialOpen?: boolean }) {
             Optional for play. Connecting shares your address; it does not sync
             or verify your game progress.
           </p>
+          <dl className="reading-list">
+            <div>
+              <dt>Local battle records</dt>
+              <dd>{localMatches} in this browser</dd>
+            </div>
+            <div>
+              <dt>Confirmed on-chain battle records</dt>
+              <dd>None. Battles are not sent to any chain.</dd>
+            </div>
+          </dl>
           {isConnected && address ? (
             <div className="wallet-connected">
               <span className="full-address">{getAddress(address)}</span>
@@ -216,13 +232,15 @@ export function Wallet({ initialOpen = false }: { initialOpen?: boolean }) {
 const queryClient = new QueryClient();
 export default function WalletProvider({
   initialOpen,
+  localMatches,
 }: {
   initialOpen?: boolean;
+  localMatches?: number;
 }) {
   return (
     <WagmiProvider config={config}>
       <QueryClientProvider client={queryClient}>
-        <Wallet initialOpen={initialOpen} />
+        <Wallet initialOpen={initialOpen} localMatches={localMatches} />
       </QueryClientProvider>
     </WagmiProvider>
   );

@@ -16,6 +16,9 @@ const pairs = [
   ["Focus ring on raised surface", "--focus", "--surface-raised", 3],
   ["Success text on surface", "--success", "--surface", 4.5],
   ["Energy text on surface", "--energy", "--surface", 4.5],
+  ["Stale signal on surface", "--warning", "--surface", 4.5],
+  ["Offline signal on surface", "--danger", "--surface", 4.5],
+  ["Signal text on raised surface", "--warning", "--surface-raised", 4.5],
   ["Health fill on track", "--success", "--line", 3],
   ["Energy fill on track", "--energy", "--line", 3],
 ];

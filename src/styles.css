@@ -20,6 +20,7 @@
   --success: #9ccfb5;
   --danger: #f19a9e;
   --energy: #b6a1e5;
+  --warning: #eccb7d;
   --focus: #f9d69f;
   --font-body: Arial, Helvetica, sans-serif;
   --font-game: Pixelify, Arial, sans-serif;
@@ -174,9 +175,11 @@ button:disabled {
   color: var(--accent-ink);
   padding: 12px 20px;
   z-index: 100;
+  opacity: 0;
   transform: translateY(-160%);
 }
 .skip-link:focus {
+  opacity: 1;
   transform: translateY(0);
 }
 .button {
@@ -1229,7 +1232,7 @@ summary {
   position: absolute;
   inset: 60px 20% 32px;
   z-index: 5;
-  background: #1b1724f5;
+  background: var(--surface);
   border: 1px solid #5a455e;
   border-radius: 5px;
   display: flex;
@@ -1426,6 +1429,9 @@ td {
   padding: 8px;
   border-bottom: 1px solid var(--line);
 }
+.leaderboard-table td {
+  white-space: nowrap;
+}
 .table-warrior {
   display: flex;
   align-items: center;
@@ -1495,25 +1501,166 @@ td {
   padding: 12px;
   border-radius: 3px;
 }
-.network-info {
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+.power-strip {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 8px 16px;
+  padding: 12px 16px;
+  margin-bottom: 16px;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 5px;
+}
+.power-summary {
   display: flex;
   flex-direction: column;
-  gap: 16px;
-  margin-block: 24px;
-  padding-block: 24px;
-  border-top: 1px solid var(--line);
-  border-bottom: 1px solid var(--line);
+  gap: 2px;
+  min-width: 0;
 }
-.network-info h3 {
-  margin-bottom: 8px;
+.power-summary strong {
+  font-size: var(--text-sm);
+  font-weight: 600;
+  line-height: 1.4;
 }
-.network-response {
-  display: flex;
-  flex-direction: column;
+.power-event {
+  display: inline-flex;
+  align-items: center;
   gap: 6px;
+  color: var(--energy);
 }
-.network-info .button {
-  align-self: start;
+.power-event svg {
+  flex-shrink: 0;
+}
+.power-open {
+  min-height: 44px;
+  padding-inline: 14px;
+  white-space: nowrap;
+}
+.arena-progress {
+  width: 100%;
+  height: 6px;
+  margin-top: 4px;
+}
+.signal-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: var(--text-sm);
+  font-weight: 700;
+  line-height: 1.4;
+  white-space: nowrap;
+}
+.signal-badge svg {
+  flex-shrink: 0;
+}
+.signal-badge.live {
+  color: var(--success);
+}
+.signal-badge.simulated {
+  color: var(--energy);
+}
+.signal-badge.stale {
+  color: var(--warning);
+}
+.signal-badge.offline {
+  color: var(--danger);
+}
+.power-details {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.power-details h3 {
+  margin-top: 12px;
+}
+.power-state {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 16px;
+  padding: 12px 16px;
+  background: var(--surface-raised);
+  border-radius: 5px;
+}
+.modal .power-state p {
+  flex: 1 1 200px;
+  margin: 0;
+}
+.reading-list {
+  margin: 0;
+}
+.reading-list > div {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 2px 16px;
+  padding-block: 8px;
+  border-bottom: 1px solid var(--line);
+  font-size: var(--text-sm);
+  line-height: 1.5;
+}
+.reading-list dt {
+  color: var(--muted);
+}
+.reading-list dd {
+  margin: 0;
+  font-variant-numeric: tabular-nums;
+  overflow-wrap: anywhere;
+}
+.power-rules {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 260px), 1fr));
+  gap: 16px 24px;
+}
+.power-rules th {
+  white-space: normal;
+}
+.power-rules tr.current td {
+  background: var(--surface-raised);
+  font-weight: 600;
+}
+.settlement-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.settlement-list li {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding-block: 8px;
+  border-bottom: 1px solid var(--line);
+  font-size: var(--text-sm);
+}
+.power-source summary {
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  font-size: var(--text-sm);
+}
+.battle-action[aria-disabled="true"] {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+/* Opacity would fade the focus ring with the button. */
+.battle-action[aria-disabled="true"]:focus-visible {
+  opacity: 1;
+}
+.battle-arena.powered {
+  border-color: var(--energy);
+}
+.turn-indicator.arena-event {
+  color: var(--energy);
 }
 .fatal-error {
   max-width: 600px;
@@ -1545,7 +1692,7 @@ td {
   .warrior-choice:hover {
     border-color: #9d899a;
   }
-  .battle-action:not(:disabled):hover {
+  .battle-action:not([aria-disabled="true"]):hover {
     filter: brightness(1.1);
   }
   .arena-caption button:hover {
@@ -1558,6 +1705,9 @@ td {
 @media (prefers-reduced-motion: no-preference) {
   button:active:not(:disabled) {
     transform: scale(0.96);
+  }
+  .app:not(.no-motion) .power-wheel.spinning .signal-badge svg {
+    animation: wheel-spin var(--wheel-spin, 1s) linear infinite;
   }
   .preview-fighter > .sprite {
     animation: bob 3s steps(2, end) infinite;
@@ -1659,6 +1809,11 @@ td {
 .no-motion .impact {
   display: none;
 }
+@keyframes wheel-spin {
+  to {
+    rotate: 360deg;
+  }
+}
 @media (min-width: 1500px) {
   .app {
     padding-inline: 48px;
@@ -1731,9 +1886,34 @@ td {
     display: none;
   }
 }
+@media (max-width: 1000px) {
+  .menu-copy h1 {
+    font-size: var(--text-display);
+  }
+  .menu-copy p {
+    max-width: 260px;
+  }
+  .preview-fighter .sprite {
+    width: 170px;
+  }
+}
 @media (max-width: 760px) {
   .app {
     padding-inline: 20px;
+  }
+  .power-strip {
+    grid-template-columns: minmax(0, 1fr) auto;
+  }
+  .power-summary {
+    grid-column: 1 / -1;
+    grid-row: 2;
+  }
+  /* Keeps the actions on a phone's first screen. Wheel details has the rest. */
+  .in-battle .power-summary .muted {
+    display: none;
+  }
+  .in-battle .power-strip {
+    padding-block: 8px;
   }
   .header {
     min-height: 84px;

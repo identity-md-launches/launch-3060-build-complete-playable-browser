@@ -12,6 +12,7 @@ const { chromium, webkit } = require("playwright");
 const { default: AxeBuilder } = await import(
   require.resolve("@axe-core/playwright")
 );
+import { installApi, powerChecks } from "./verify-power.mjs";
 const output = "test/scratch/browser-tests";
 await mkdir(output, { recursive: true });
 const mime = {
@@ -88,6 +89,7 @@ try {
       viewport: { width: 390, height: 844 },
       reducedMotion: "reduce",
     });
+    await installApi(context, { mode: "idle" });
     const page = await context.newPage();
     const errors = [],
       missing = [];
@@ -123,7 +125,7 @@ try {
         content: document.documentElement.scrollWidth,
       }));
     }
-    for (const width of [320, 390, 820, 1440])
+    for (const width of [320, 375, 390, 768, 1024, 1440])
       await check(`${engineName}: menu reflow at ${width}px`, async () => {
         await page.setViewportSize({ width, height: width < 600 ? 844 : 1000 });
         assert.ok((await overflow()).content <= width);
@@ -190,7 +192,7 @@ try {
         }
         await page.getByRole("button", { name: /^Pip / }).click();
         await page.getByRole("radio", { name: /Rookie/ }).check();
-        for (const width of [320, 390, 820, 1440]) {
+        for (const width of [320, 375, 390, 768, 1024, 1440]) {
           await page.setViewportSize({ width, height: 844 });
           assert.ok((await overflow()).content <= width);
         }
@@ -224,7 +226,7 @@ try {
         assert.ok(
           Number(after.match(/\d+/)[0]) - Number(before.match(/\d+/)[0]) <= 2,
         );
-        for (const width of [320, 390, 820, 1440]) {
+        for (const width of [320, 375, 390, 768, 1024, 1440]) {
           await page.setViewportSize({ width, height: 844 });
           assert.ok((await overflow()).content <= width);
         }
@@ -269,7 +271,8 @@ try {
           await page
             .getByRole("button", { name: "Leaderboard", exact: true })
             .click();
-          assert.equal(await page.locator("tbody tr").count(), 1);
+          // One row in the leaderboard and one in the battle history.
+          assert.equal(await page.locator("tbody tr").count(), 2);
           const downloadPromise = page.waitForEvent("download");
           await page
             .getByRole("button", { name: "Export match records" })
@@ -367,6 +370,14 @@ try {
       },
     );
     await context.close();
+    await powerChecks({
+      engineName,
+      browser,
+      url,
+      output,
+      check,
+      axe: AxeBuilder,
+    });
     await browser.close();
   }
 } finally {

@@ -16,7 +16,11 @@ export type IconName =
   | "back"
   | "pause"
   | "download"
-  | "external";
+  | "external"
+  | "wheel"
+  | "flask"
+  | "clock"
+  | "unplugged";
 const paths: Record<IconName, string> = {
   sword: "M14 3h7v7l-9 9-7-7 9-9Zm-3 10-7 7m-1-4 5 5m1-10 5 5",
   shield: "M12 3 3 7v5c0 5 9 10 9 10s9-5 9-10V7l-9-4Zm0 4v10",
@@ -36,6 +40,11 @@ const paths: Record<IconName, string> = {
   pause: "M8 4v16M16 4v16",
   download: "M12 3v12m-5-5 5 5 5-5M4 17v4h16v-4",
   external: "M14 3h7v7m0-7L10 14M10 3H3v18h18v-7",
+  wheel:
+    "M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20Zm0 7a3 3 0 1 0 0 6 3 3 0 0 0 0-6ZM12 2v7m0 6v7M2 12h7m6 0h7",
+  flask: "M9 3h6m-5 0v7L4 21h16l-6-11V3M8 15h8",
+  clock: "M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20Zm0 5v5l4 3",
+  unplugged: "m3 3 18 18M8 3v5m8-5v5M6 8h9m3 0v3m-1 5H9l-3-3V8m6 8v5",
 };
 export function Icon({ name, size = 20 }: { name: IconName; size?: number }) {
   return (

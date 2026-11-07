@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import {
   act,
+  applyArenaEvent,
   chooseAI,
   createBattle,
   DIFFICULTIES,
@@ -11,7 +12,13 @@ import {
   type Difficulty,
   type WarriorId,
 } from "./game";
-import { loadProgress, saveProgress } from "./storage";
+import {
+  loadProgress,
+  parseProgress,
+  saveProgress,
+  STORAGE_KEY,
+} from "./storage";
+import { SqueekFeed, useSqueek } from "./squeekFeed";
 import { playSound } from "./audio";
 import { Icon } from "./components/Icon";
 import { Modal } from "./components/Modal";
@@ -23,10 +30,12 @@ import {
   HowToPlay,
   Leaderboard,
 } from "./components/GameViews";
-import { Network } from "./components/Network";
+import { PowerDetails, PowerStrip } from "./components/SqueekPower";
 import { WalletLauncher } from "./components/WalletLauncher";
-type Overlay = "help" | "leaderboard" | "leave" | "about" | null;
+type Overlay = "help" | "leaderboard" | "leave" | "about" | "power" | null;
 export default function App() {
+  const [feed] = useState(() => new SqueekFeed());
+  const squeek = useSqueek(feed);
   const [initial] = useState(loadProgress);
   const [progress, setProgress] = useState(initial.progress);
   const [warning, setWarning] = useState(initial.warning);
@@ -52,6 +61,22 @@ export default function App() {
         : "Progress cannot be saved in this browser. Keep this tab open to continue this session.",
     );
   }, [progress]);
+  // Another tab finishing a battle must not be overwritten by this tab's older
+  // copy, which would silently lose XP.
+  useEffect(() => {
+    const handler = (event: StorageEvent) => {
+      if (event.key !== STORAGE_KEY || !event.newValue) return;
+      try {
+        const next = parseProgress(event.newValue);
+        savedProgress.current = next;
+        setProgress(next);
+      } catch {
+        // An unreadable write from elsewhere is ignored; this tab keeps its copy.
+      }
+    };
+    window.addEventListener("storage", handler);
+    return () => window.removeEventListener("storage", handler);
+  }, []);
   const changeScreen = (next: typeof screen) => {
     setScreen(next);
     window.scrollTo({ top: 0, behavior: "instant" });
@@ -63,7 +88,15 @@ export default function App() {
     changeScreen("select");
   }
   function start() {
-    const next = createBattle(selected, difficulty, progress.xp);
+    let next = createBattle(
+      selected,
+      difficulty,
+      progress.xp,
+      Math.random,
+      feed.view().signal.status,
+    );
+    const banked = feed.takeEvent();
+    if (banked) next = applyArenaEvent(next, banked);
     battleRef.current = next;
     setBattle(next);
     changeScreen("battle");
@@ -81,7 +114,8 @@ export default function App() {
   function action(move: Action) {
     const current = battleRef.current;
     if (!current || current.turn !== "player" || overlay) return;
-    const next = act(current, "player", move);
+    // Read at the moment of the action, so a lost signal is neutral immediately.
+    const next = act(current, "player", move, Math.random, feed.view().mods);
     if (next === current) return;
     playSound(move, progress.sound);
     apply(next);
@@ -105,6 +139,21 @@ export default function App() {
     );
     return () => clearTimeout(timer);
   }, [battle, progress.motion, progress.sound]);
+  // A settlement landing during a battle hits the arena straight away. Outside a
+  // battle it stays banked for the next one.
+  useEffect(() => {
+    const current = battleRef.current;
+    if (!squeek.pendingEvent || !current || current.winner) return;
+    if (screen !== "battle") return;
+    const event = feed.takeEvent();
+    if (!event) return;
+    playSound("special", progress.sound);
+    apply(applyArenaEvent(current, event));
+  }, [squeek.pendingEvent, screen]);
+  // The AI can end the battle behind an open "Leave" dialog.
+  useEffect(() => {
+    if (battle?.winner) setOverlay((o) => (o === "leave" ? null : o));
+  }, [battle?.winner]);
   useEffect(() => {
     const handler = (event: KeyboardEvent) => {
       if (
@@ -139,7 +188,9 @@ export default function App() {
     ? levelFor(progress.xp) > levelFor(progress.xp - lastMatch.xp)
     : false;
   return (
-    <div className={`app ${!progress.motion ? "no-motion" : ""}`}>
+    <div
+      className={`app ${!progress.motion ? "no-motion" : ""} ${screen === "battle" ? "in-battle" : ""}`}
+    >
       <a href="#main" className="skip-link">
         Skip to game
       </a>
@@ -180,7 +231,7 @@ export default function App() {
             <Icon name={progress.sound ? "sound" : "muted"} size={18} />
           </button>
           <span className="utility-divider" />
-          <WalletLauncher />
+          <WalletLauncher localMatches={progress.matches.length} />
         </div>
       </header>
       <nav className="main-nav" aria-label="Game menu">
@@ -190,7 +241,7 @@ export default function App() {
             onClick={() => (screen === "menu" ? choose() : goHome())}
           >
             <Icon name="sword" size={18} />
-            Play
+            {screen === "menu" ? "Play" : "Menu"}
           </button>
           <button onClick={() => setOverlay("help")}>
             <Icon name="help" size={18} />
@@ -219,6 +270,7 @@ export default function App() {
             </button>
           </div>
         )}
+        <PowerStrip view={squeek} onOpen={() => setOverlay("power")} />
         {screen === "menu" && (
           <Menu
             onPlay={() => choose()}
@@ -234,11 +286,13 @@ export default function App() {
             setDifficulty={setDifficulty}
             onStart={start}
             onBack={() => changeScreen("menu")}
+            xp={progress.xp}
           />
         )}
         {screen === "battle" && battle && (
           <BattleView
             battle={battle}
+            mods={squeek.mods}
             onAction={action}
             onLeave={() => setOverlay("leave")}
             onReplay={start}
@@ -260,6 +314,11 @@ export default function App() {
           </button>
         </div>
       </footer>
+      {overlay === "power" && (
+        <Modal title="Live Squeek Power" wide onClose={() => setOverlay(null)}>
+          <PowerDetails view={squeek} onRefresh={() => feed.refresh()} />
+        </Modal>
+      )}
       {overlay === "help" && (
         <Modal title="How to play" onClose={() => setOverlay(null)}>
           <HowToPlay />
@@ -286,7 +345,19 @@ export default function App() {
             BATTLE HAMSTER is an original, free single-player game for the
             Squeekchain Genesis community.
           </p>
-          <Network />
+          <p>
+            A real hamster wheel feeds the arena through the official
+            Squeekchain API. When its reading is fresh, signed and labelled
+            hardware, wheel speed and distance change your battles. Otherwise
+            the game uses neutral rules.
+          </p>
+          <button
+            className="button secondary"
+            onClick={() => setOverlay("power")}
+          >
+            <Icon name="wheel" size={18} />
+            Open wheel details
+          </button>
           <p className="small muted">
             The warriors are original game characters. Game XP is not Squeek NFT
             level or $SQK, and does not earn tokens. Wallet connection is

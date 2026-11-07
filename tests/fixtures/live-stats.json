@@ -1,0 +1,235 @@
+{
+  "schemaVersion": 1,
+  "installationId": "sepolia-core-sepolia-20261103",
+  "revision": "OjFwnUvt0P9-dmUwd6qJ5pmlXr7zAKfO-VudiYUUelo",
+  "generatedAt": "2026-11-07T00:11:51.436Z",
+  "range": "7d",
+  "timezone": "UTC",
+  "window": {
+    "startAt": "2026-10-31T12:00:00.000Z",
+    "endAt": "2026-11-07T00:11:51.436Z",
+    "dayCount": 7,
+    "bucketSeconds": 1800,
+    "roundSeconds": 600
+  },
+  "lifetime": {
+    "acceptedWorkUnits": "11048",
+    "observedDistanceMm": "9700144",
+    "activeDayCount": 2,
+    "settledBlockCount": "1140",
+    "settlementCount": "271",
+    "coverageBps": 10000,
+    "firstObservedAt": "2026-11-03T19:50:00.000Z",
+    "settledWorkUnits": "11048"
+  },
+  "activity": {
+    "provenance": "accepted_rounds",
+    "coverage": {
+      "expectedRoundCount": 937,
+      "observedRoundCount": 458,
+      "coverageBps": 4887,
+      "complete": false
+    },
+    "summary": {
+      "observedWorkUnits": "11048",
+      "observedDistanceMm": "9700144",
+      "activeDayCount": 2,
+      "inactiveDayCount": 1,
+      "averageWorkPerActiveDayMilli": "5524000",
+      "medianWorkPerActiveDay": "3817",
+      "averageDistancePerActiveDayMm": "4850072",
+      "mostActiveDate": "2026-11-05",
+      "mostActiveDateWorkUnits": "7231",
+      "peakWindowStartMinuteUtc": 270
+    },
+    "days": [
+      {
+        "date": "2026-10-31",
+        "coverage": {
+          "expectedRoundCount": 144,
+          "observedRoundCount": 0,
+          "coverageBps": 0
+        },
+        "observedWorkUnits": "0",
+        "distanceMm": null,
+        "buckets": [
+          {
+            "startMinuteUtc": 0,
+            "coverage": "missing",
+            "observedRoundCount": 0,
+            "workUnits": null
+          }
+        ]
+      },
+      {
+        "date": "2026-11-01",
+        "coverage": {
+          "expectedRoundCount": 144,
+          "observedRoundCount": 0,
+          "coverageBps": 0
+        },
+        "observedWorkUnits": "0",
+        "distanceMm": null,
+        "buckets": [
+          {
+            "startMinuteUtc": 0,
+            "coverage": "missing",
+            "observedRoundCount": 0,
+            "workUnits": null
+          }
+        ]
+      },
+      {
+        "date": "2026-11-02",
+        "coverage": {
+          "expectedRoundCount": 144,
+          "observedRoundCount": 0,
+          "coverageBps": 0
+        },
+        "observedWorkUnits": "0",
+        "distanceMm": null,
+        "buckets": [
+          {
+            "startMinuteUtc": 0,
+            "coverage": "missing",
+            "observedRoundCount": 0,
+            "workUnits": null
+          }
+        ]
+      },
+      {
+        "date": "2026-11-03",
+        "coverage": {
+          "expectedRoundCount": 144,
+          "observedRoundCount": 97,
+          "coverageBps": 6736
+        },
+        "observedWorkUnits": "0",
+        "distanceMm": null,
+        "buckets": [
+          {
+            "startMinuteUtc": 0,
+            "coverage": "complete",
+            "observedRoundCount": 3,
+            "workUnits": "0"
+          }
+        ]
+      },
+      {
+        "date": "2026-11-04",
+        "coverage": {
+          "expectedRoundCount": 144,
+          "observedRoundCount": 144,
+          "coverageBps": 10000
+        },
+        "observedWorkUnits": "3817",
+        "distanceMm": "3351326",
+        "buckets": [
+          {
+            "startMinuteUtc": 0,
+            "coverage": "complete",
+            "observedRoundCount": 3,
+            "workUnits": "0"
+          }
+        ]
+      },
+      {
+        "date": "2026-11-05",
+        "coverage": {
+          "expectedRoundCount": 144,
+          "observedRoundCount": 144,
+          "coverageBps": 10000
+        },
+        "observedWorkUnits": "7231",
+        "distanceMm": "6348818",
+        "buckets": [
+          {
+            "startMinuteUtc": 0,
+            "coverage": "complete",
+            "observedRoundCount": 3,
+            "workUnits": "0"
+          }
+        ]
+      },
+      {
+        "date": "2026-11-06",
+        "coverage": {
+          "expectedRoundCount": 73,
+          "observedRoundCount": 73,
+          "coverageBps": 10000
+        },
+        "observedWorkUnits": "0",
+        "distanceMm": "0",
+        "buckets": [
+          {
+            "startMinuteUtc": 0,
+            "coverage": "partial",
+            "observedRoundCount": 1,
+            "workUnits": "0"
+          }
+        ]
+      }
+    ],
+    "typicalDay": [
+      {
+        "startMinuteUtc": 0,
+        "totalWorkUnits": "0",
+        "observedDayCount": 3,
+        "meanWorkMilli": "0"
+      }
+    ]
+  },
+  "records": {
+    "mostWorkHalfHour": {
+      "value": "1197",
+      "occurredAt": "2026-11-06T04:00:00.000Z",
+      "coverage": "complete"
+    },
+    "mostWorkUtcDay": {
+      "value": "7231",
+      "occurredAt": "2026-11-05T12:00:00.000Z",
+      "coverage": "complete"
+    },
+    "maximumDailyDistanceMm": {
+      "value": "6348818",
+      "occurredAt": "2026-11-05T12:00:00.000Z",
+      "coverage": "complete"
+    },
+    "peakObservedRpmMilli": {
+      "value": "87707",
+      "occurredAt": "2026-11-06T06:43:51.176Z",
+      "coverage": "complete"
+    },
+    "peakObservedSpeedMmPerSecond": {
+      "value": "1283",
+      "occurredAt": "2026-11-06T06:43:51.176Z",
+      "coverage": "complete"
+    },
+    "longestActiveWindowMinutes": {
+      "value": "220",
+      "occurredAt": "2026-11-06T03:50:00.000Z",
+      "coverage": "complete"
+    },
+    "longestActiveDayStreak": {
+      "value": "2",
+      "occurredAt": "2026-11-04T12:00:00.000Z",
+      "coverage": "complete"
+    }
+  },
+  "blocks": {
+    "status": "unavailable",
+    "reason": "completion_boundaries_unavailable"
+  },
+  "rounds": {
+    "observedCount": 458,
+    "activeCount": 36,
+    "zeroWorkCount": 422,
+    "missingCount": 479,
+    "activeRateBps": 786,
+    "averageActiveWorkMilli": "306888",
+    "medianActiveWork": "316",
+    "p90ActiveWork": "471",
+    "mostActiveWork": "500"
+  },
+  "oracle": { "status": "unavailable", "reason": "projection_not_initialized" }
+}

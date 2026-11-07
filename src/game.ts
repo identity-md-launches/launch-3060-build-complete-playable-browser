@@ -1,3 +1,9 @@
+import {
+  NEUTRAL_MODS,
+  type ArenaEvent,
+  type SignalStatus,
+  type SqueekMods,
+} from "./squeek";
 export type WarriorId = "pip" | "mochi" | "nyx";
 export type Action = "attack" | "defend" | "special";
 export type Difficulty = "rookie" | "fighter" | "champion";
@@ -96,10 +102,23 @@ export interface Battle {
   round: number;
   winner: Side | null;
   events: BattleEvent[];
+  /** Extra damage on the player's next hit, left by an arena event. */
+  surgePct: number;
+  power: BattlePower;
+}
+/** What real wheel data actually changed in this battle. */
+export interface BattlePower {
+  /** Signal when the battle started. */
+  signal: SignalStatus;
+  boostedTurns: number;
+  bonusEnergy: number;
+  bonusDamage: number;
+  /** Settlement keys already applied, so none can apply twice. */
+  events: string[];
 }
 export interface BattleEvent {
-  actor: Side;
-  action: Action;
+  actor: Side | "arena";
+  action: Action | "event";
   damage: number;
   healed: number;
   guarded: boolean;
@@ -108,17 +127,27 @@ export interface BattleEvent {
 export const warrior = (id: WarriorId) => WARRIORS.find((w) => w.id === id)!;
 export const levelFor = (xp: number) => Math.floor(Math.sqrt(xp / 100)) + 1;
 export const levelStart = (level: number) => (level - 1) ** 2 * 100;
+/** Character upgrade from level: +2% health and attack per level, up to 12%. */
+export const levelBonus = (xp: number) =>
+  1 + Math.min(0.12, (levelFor(xp) - 1) * 0.02);
+// crypto.randomUUID only exists in secure contexts; plain-HTTP previews lack it.
+const battleId = () =>
+  crypto.randomUUID?.() ??
+  Array.from(crypto.getRandomValues(new Uint32Array(4)), (n) =>
+    n.toString(16).padStart(8, "0"),
+  ).join("-");
 export function createBattle(
   id: WarriorId,
   difficulty: Difficulty,
   xp: number,
   random = Math.random,
+  signal: SignalStatus = "offline",
 ): Battle {
   const others = WARRIORS.filter((w) => w.id !== id);
   const enemy =
     others[Math.min(others.length - 1, Math.floor(random() * others.length))];
   const multiplier = DIFFICULTIES[difficulty];
-  const bonus = 1 + Math.min(0.12, (levelFor(xp) - 1) * 0.02);
+  const bonus = levelBonus(xp);
   const fighter = (w: Warrior, hp: number, attack: number): Fighter => ({
     id: w.id,
     hp: Math.round(w.hp * hp),
@@ -129,7 +158,7 @@ export function createBattle(
     guarding: false,
   });
   return {
-    id: crypto.randomUUID(),
+    id: battleId(),
     player: fighter(warrior(id), bonus, bonus),
     enemy: fighter(enemy, multiplier.hp, multiplier.attack),
     difficulty,
@@ -137,6 +166,14 @@ export function createBattle(
     round: 1,
     winner: null,
     events: [],
+    surgePct: 0,
+    power: {
+      signal,
+      boostedTurns: 0,
+      bonusEnergy: 0,
+      bonusDamage: 0,
+      events: [],
+    },
   };
 }
 export function chooseAI(battle: Battle, random = Math.random): Action {
@@ -156,15 +193,20 @@ export function act(
   side: Side,
   action: Action,
   random = Math.random,
+  squeek: SqueekMods = NEUTRAL_MODS,
 ): Battle {
   if (battle.turn !== side || battle.winner) return battle;
+  // Squeek Power belongs to the player's side only; the AI always fights neutral.
+  const mods = side === "player" ? squeek : NEUTRAL_MODS;
   const attacker = { ...battle[side] };
   const targetSide = side === "player" ? "enemy" : "player";
   const target = { ...battle[targetSide] };
   if (action === "special" && attacker.energy < 60) return battle;
   const name = warrior(attacker.id).name;
   let damage = 0,
-    healed = 0;
+    healed = 0,
+    bonusDamage = 0,
+    surgePct = battle.surgePct;
   const guarded = target.guarding;
   // Guard lasts through the opponent's next action, including a defensive turn.
   attacker.guarding = false;
@@ -191,18 +233,31 @@ export function act(
       }
     } else attacker.energy = Math.min(100, attacker.energy + 15);
     const variance = 0.9 + random() * 0.2;
-    damage = Math.max(
-      1,
-      Math.round((power - armor * 0.5) * variance * (guarded ? 0.4 : 1)),
+    const hit = (power - armor * 0.5) * variance * (guarded ? 0.4 : 1);
+    const boostPct = mods.damagePct + (side === "player" ? surgePct : 0);
+    const plain = Math.min(target.hp, Math.max(1, Math.round(hit)));
+    damage = Math.min(
+      target.hp,
+      Math.max(1, Math.round(hit * (1 + boostPct / 100))),
     );
-    damage = Math.min(target.hp, damage);
+    bonusDamage = damage - plain;
+    if (side === "player") surgePct = 0;
     target.hp = Math.max(0, target.hp - damage);
   }
+  const bonusEnergy = Math.min(100 - attacker.energy, mods.energyPerTurn);
+  attacker.energy += bonusEnergy;
   target.guarding = false;
+  const boost = [
+    bonusDamage ? `+${bonusDamage} damage` : "",
+    bonusEnergy ? `+${bonusEnergy} energy` : "",
+  ]
+    .filter(Boolean)
+    .join(", ");
   const text =
-    action === "defend"
+    (action === "defend"
       ? `${name} braces for the next hit. +35 energy.`
-      : `${name} uses ${action === "special" ? warrior(attacker.id).special : "Attack"} for ${damage} damage${guarded ? " through the guard" : ""}.${healed ? ` Restored ${healed} health.` : ""}`;
+      : `${name} uses ${action === "special" ? warrior(attacker.id).special : "Attack"} for ${damage} damage${guarded ? " through the guard" : ""}.${healed ? ` Restored ${healed} health.` : ""}`) +
+    (boost ? ` Squeek Power: ${boost}.` : "");
   const event: BattleEvent = {
     actor: side,
     action,
@@ -220,7 +275,49 @@ export function act(
     winner,
     round: battle.round + (side === "enemy" && !winner ? 1 : 0),
     events: [...battle.events.slice(-19), event],
+    surgePct,
+    power: {
+      ...battle.power,
+      boostedTurns: battle.power.boostedTurns + Number(Boolean(boost)),
+      bonusEnergy: battle.power.bonusEnergy + bonusEnergy,
+      bonusDamage: battle.power.bonusDamage + bonusDamage,
+    },
   };
+}
+/** Applies a settlement event once. A finished battle or a repeat is ignored. */
+export function applyArenaEvent(battle: Battle, event: ArenaEvent): Battle {
+  if (battle.winner || battle.power.events.includes(event.key)) return battle;
+  const energy = Math.min(100 - battle.player.energy, event.energy);
+  return {
+    ...battle,
+    player: { ...battle.player, energy: battle.player.energy + energy },
+    surgePct: Math.max(battle.surgePct, event.surgePct),
+    power: {
+      ...battle.power,
+      bonusEnergy: battle.power.bonusEnergy + energy,
+      events: [...battle.power.events, event.key],
+    },
+    events: [
+      ...battle.events.slice(-19),
+      {
+        actor: "arena",
+        action: "event",
+        damage: 0,
+        healed: 0,
+        guarded: false,
+        text:
+          `${event.name}: a new settlement reached Sepolia. +${energy} energy` +
+          (event.surgePct ? `, next hit +${event.surgePct}%.` : "."),
+      },
+    ],
+  };
+}
+export interface MatchPower {
+  signal: SignalStatus;
+  boostedTurns: number;
+  bonusEnergy: number;
+  bonusDamage: number;
+  events: number;
 }
 export interface Match {
   id: string;
@@ -232,6 +329,8 @@ export interface Match {
   rounds: number;
   date: string;
   health: number;
+  /** Absent on matches saved before Squeek Power existed. */
+  power?: MatchPower;
 }
 export interface Progress {
   version: 1;
@@ -271,6 +370,13 @@ export function recordBattle(progress: Progress, battle: Battle): Progress {
     rounds: battle.round,
     date: new Date().toISOString(),
     health: battle.player.hp,
+    power: {
+      signal: battle.power.signal,
+      boostedTurns: battle.power.boostedTurns,
+      bonusEnergy: battle.power.bonusEnergy,
+      bonusDamage: battle.power.bonusDamage,
+      events: battle.power.events.length,
+    },
   };
   return {
     ...progress,

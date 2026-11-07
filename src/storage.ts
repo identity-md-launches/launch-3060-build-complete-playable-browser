@@ -5,6 +5,17 @@ const count = (v: unknown): v is number =>
   Number.isSafeInteger(v) &&
   v >= 0 &&
   v <= 1_000_000_000;
+const validPower = (p: unknown) => {
+  if (p === undefined) return true;
+  const power = p as Record<string, unknown> | null;
+  return (
+    !!power &&
+    ["live", "simulated", "stale", "offline"].includes(String(power.signal)) &&
+    ["boostedTurns", "bonusEnergy", "bonusDamage", "events"].every((k) =>
+      count(power[k]),
+    )
+  );
+};
 export function parseProgress(raw: string | null): Progress {
   if (!raw) return freshProgress();
   const p = JSON.parse(raw);
@@ -33,7 +44,8 @@ export function parseProgress(raw: string | null): Progress {
       !count(m.rounds) ||
       !count(m.health) ||
       typeof m.date !== "string" ||
-      Number.isNaN(Date.parse(m.date))
+      Number.isNaN(Date.parse(m.date)) ||
+      !validPower(m.power)
     )
       throw new Error("Invalid match");
   }

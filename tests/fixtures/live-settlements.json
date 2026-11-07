@@ -1,0 +1,625 @@
+{
+  "schemaVersion": 3,
+  "installationId": "sepolia-core-sepolia-20261103",
+  "status": "available",
+  "range": "now",
+  "generatedAt": "2026-11-07T00:11:49.774Z",
+  "chain": {
+    "target": "sepolia",
+    "chainId": "11155111",
+    "confirmations": "12",
+    "deploymentBlock": "12057556",
+    "indexedThroughBlock": "12080026",
+    "safeThroughBlock": "12080015"
+  },
+  "window": null,
+  "summary": {
+    "settlementCount": "271",
+    "activeRoundCount": "36",
+    "workAdded": "11048",
+    "completedBlockCount": "1140",
+    "archivedSettlementCount": "261"
+  },
+  "recentSettlements": [
+    {
+      "transactionHash": "0x6e6315104c9e1e29670a376ef9a59534ab699e673f3959a62f5abe936d9d15ab",
+      "previousSettledThroughRound": "357",
+      "settledThroughRound": "358",
+      "activeRoundCount": "1",
+      "workAdded": "18",
+      "cumulativeWork": "11048",
+      "cumulativeBlockUnits": "1140662790326",
+      "firstCompletedBlock": "1139",
+      "lastCompletedBlock": "1140",
+      "completedBlockCount": "2",
+      "blockHeight": "1140",
+      "ethereumBlockNumber": "12075103",
+      "blockTimestamp": "2026-11-06T07:30:36.000Z",
+      "logIndex": "216",
+      "confirmationStatus": "safe",
+      "sqkMintedBaseUnits": "7349141400022026245117"
+    },
+    {
+      "transactionHash": "0xaafaf47f8f929338c2d93287591ebb2a4fec4ce15ecfde73853e6f2484bfff6b",
+      "previousSettledThroughRound": "356",
+      "settledThroughRound": "357",
+      "activeRoundCount": "1",
+      "workAdded": "427",
+      "cumulativeWork": "11030",
+      "cumulativeBlockUnits": "1138663234672",
+      "firstCompletedBlock": "1091",
+      "lastCompletedBlock": "1138",
+      "completedBlockCount": "48",
+      "blockHeight": "1138",
+      "ethereumBlockNumber": "12075054",
+      "blockTimestamp": "2026-11-06T07:20:36.000Z",
+      "logIndex": "237",
+      "confirmationStatus": "safe",
+      "sqkMintedBaseUnits": "176379393600528629882796"
+    },
+    {
+      "transactionHash": "0x3eed52c685135018774c4782562f16abacae4150ea6f3f2b1d44bbe63c665314",
+      "previousSettledThroughRound": "355",
+      "settledThroughRound": "356",
+      "activeRoundCount": "1",
+      "workAdded": "81",
+      "cumulativeWork": "10603",
+      "cumulativeBlockUnits": "1090927069217",
+      "firstCompletedBlock": "1083",
+      "lastCompletedBlock": "1090",
+      "completedBlockCount": "8",
+      "blockHeight": "1090",
+      "ethereumBlockNumber": "12075005",
+      "blockTimestamp": "2026-11-06T07:10:36.000Z",
+      "logIndex": "904",
+      "confirmationStatus": "safe",
+      "sqkMintedBaseUnits": "29396565600088104980466"
+    },
+    {
+      "transactionHash": "0xcb5115322c7db72c7b0373c5fda09f31f1b631cba33aff026889fd9282bd1cf3",
+      "previousSettledThroughRound": "354",
+      "settledThroughRound": "355",
+      "activeRoundCount": "1",
+      "workAdded": "448",
+      "cumulativeWork": "10522",
+      "cumulativeBlockUnits": "1082107382806",
+      "firstCompletedBlock": "1033",
+      "lastCompletedBlock": "1082",
+      "completedBlockCount": "50",
+      "blockHeight": "1082",
+      "ethereumBlockNumber": "12074956",
+      "blockTimestamp": "2026-11-06T07:00:36.000Z",
+      "logIndex": "162",
+      "confirmationStatus": "safe",
+      "sqkMintedBaseUnits": "183728535000550656127912"
+    },
+    {
+      "transactionHash": "0x7e0b7cae3e83ce3f291afb143cba67d07f59e2af07d9ffb48d7bd9dcbdae80c4",
+      "previousSettledThroughRound": "353",
+      "settledThroughRound": "354",
+      "activeRoundCount": "1",
+      "workAdded": "304",
+      "cumulativeWork": "10074",
+      "cumulativeBlockUnits": "1032957629652",
+      "firstCompletedBlock": "1000",
+      "lastCompletedBlock": "1032",
+      "completedBlockCount": "33",
+      "blockHeight": "1032",
+      "ethereumBlockNumber": "12074906",
+      "blockTimestamp": "2026-11-06T06:50:36.000Z",
+      "logIndex": "353",
+      "confirmationStatus": "safe",
+      "sqkMintedBaseUnits": "121260833100363433044423"
+    },
+    {
+      "transactionHash": "0xfc6662c551e020c4aed64286b05a77613cff90fecbf3219fc05f15a37a571cf8",
+      "previousSettledThroughRound": "352",
+      "settledThroughRound": "353",
+      "activeRoundCount": "1",
+      "workAdded": "244",
+      "cumulativeWork": "9770",
+      "cumulativeBlockUnits": "999798816389",
+      "firstCompletedBlock": "974",
+      "lastCompletedBlock": "999",
+      "completedBlockCount": "26",
+      "blockHeight": "999",
+      "ethereumBlockNumber": "12074859",
+      "blockTimestamp": "2026-11-06T06:40:36.000Z",
+      "logIndex": "212",
+      "confirmationStatus": "safe",
+      "sqkMintedBaseUnits": "95538838200286341186514"
+    },
+    {
+      "transactionHash": "0x62d3e2d0d71077f50524b186a49f904559b191eb907a80945a0333f824d9f691",
+      "previousSettledThroughRound": "351",
+      "settledThroughRound": "352",
+      "activeRoundCount": "1",
+      "workAdded": "349",
+      "cumulativeWork": "9526",
+      "cumulativeBlockUnits": "973488702091",
+      "firstCompletedBlock": "936",
+      "lastCompletedBlock": "973",
+      "completedBlockCount": "38",
+      "blockHeight": "973",
+      "ethereumBlockNumber": "12074809",
+      "blockTimestamp": "2026-11-06T06:30:36.000Z",
+      "logIndex": "196",
+      "confirmationStatus": "safe",
+      "sqkMintedBaseUnits": "139633686600418498657214"
+    },
+    {
+      "transactionHash": "0xc37a660cfb2500fc3af72148d445d47055804f90d86f7e5ce36e1dc787e483bc",
+      "previousSettledThroughRound": "350",
+      "settledThroughRound": "351",
+      "activeRoundCount": "1",
+      "workAdded": "401",
+      "cumulativeWork": "9177",
+      "cumulativeBlockUnits": "935933553055",
+      "firstCompletedBlock": "893",
+      "lastCompletedBlock": "935",
+      "completedBlockCount": "43",
+      "blockHeight": "935",
+      "ethereumBlockNumber": "12074760",
+      "blockTimestamp": "2026-11-06T06:20:36.000Z",
+      "logIndex": "134",
+      "confirmationStatus": "safe",
+      "sqkMintedBaseUnits": "158006540100473564270005"
+    },
+    {
+      "transactionHash": "0x3e0cae737b715419578bbda9c79c630b709de19128c38c57635f8ddeaed9b5c2",
+      "previousSettledThroughRound": "349",
+      "settledThroughRound": "350",
+      "activeRoundCount": "1",
+      "workAdded": "424",
+      "cumulativeWork": "8776",
+      "cumulativeBlockUnits": "892666397251",
+      "firstCompletedBlock": "847",
+      "lastCompletedBlock": "892",
+      "completedBlockCount": "46",
+      "blockHeight": "892",
+      "ethereumBlockNumber": "12074711",
+      "blockTimestamp": "2026-11-06T06:10:36.000Z",
+      "logIndex": "190",
+      "confirmationStatus": "safe",
+      "sqkMintedBaseUnits": "169030252200506603637679"
+    },
+    {
+      "transactionHash": "0x3b1fdeebc3cfadd7cbd6d4126fbf676ed51dde42e01712aeb3f0d3fb335ebb13",
+      "previousSettledThroughRound": "348",
+      "settledThroughRound": "349",
+      "activeRoundCount": "1",
+      "workAdded": "160",
+      "cumulativeWork": "8352",
+      "cumulativeBlockUnits": "846694370796",
+      "firstCompletedBlock": "830",
+      "lastCompletedBlock": "846",
+      "completedBlockCount": "17",
+      "blockHeight": "846",
+      "ethereumBlockNumber": "12074661",
+      "blockTimestamp": "2026-11-06T06:00:36.000Z",
+      "logIndex": "174",
+      "confirmationStatus": "safe",
+      "sqkMintedBaseUnits": "62467701900187223083490"
+    }
+  ],
+  "buckets": [],
+  "mining": {
+    "status": "available",
+    "economy": {
+      "releaseId": "core-sepolia-20261103",
+      "mining": "0x2dccb11fcc2defdd188555e45acb52231e82e218",
+      "token": "0xd78a3956cf63164d1fa1c622ad3c66623162fa1e",
+      "symbol": "SQK",
+      "decimals": 18
+    },
+    "supplyCap": "2100000000000000000000000000",
+    "premintBaseUnits": "210000000000000000000000000",
+    "schedule": {
+      "allowanceBaseUnits": "1890000000000000000000000000",
+      "launchBonusBaseUnits": "105000000000000000000000000",
+      "bonusBlocks": "97020",
+      "halvingBlocks": "393470",
+      "firstPeriodRateBaseUnits": "2592319617759930871476"
+    },
+    "startRound": "17",
+    "startHeight": "0",
+    "miningMintedBaseUnits": "4189010598012554959716406",
+    "unmintedCapacityBaseUnits": "1885810989401987445040283594",
+    "processedThroughRound": "457",
+    "rangeMintedBaseUnits": "4189010598012554959716406",
+    "rangeCheckpointCount": "267",
+    "nextRound": {
+      "state": "accruing",
+      "round": "458",
+      "countedThroughRound": "457",
+      "startsAt": "2026-11-07T00:00:00.000Z",
+      "endsAt": "2026-11-07T00:10:00.000Z",
+      "previousCumulativeBlockUnits": "1140662790326",
+      "cumulativeBlockUnits": "1140662790326",
+      "completedBlockCount": "0",
+      "amountBaseUnits": "0"
+    },
+    "recentCheckpoints": [
+      {
+        "afterRound": "456",
+        "throughRound": "457",
+        "completedBlockCount": "0",
+        "cumulativeWork": "11048",
+        "cumulativeBlockUnits": "1140662790326",
+        "amountBaseUnits": "0",
+        "miningMintedBaseUnits": "4189010598012554959716406",
+        "transactionHash": "0xbbab5a3b9b05580ae3e1c83c2b0acfdfd658a63e66038e9c47dac6848a72949b",
+        "ethereumBlockNumber": "12079995",
+        "blockTimestamp": "2026-11-07T00:05:36.000Z",
+        "logIndex": "112",
+        "confirmationStatus": "safe"
+      },
+      {
+        "afterRound": "455",
+        "throughRound": "456",
+        "completedBlockCount": "0",
+        "cumulativeWork": "11048",
+        "cumulativeBlockUnits": "1140662790326",
+        "amountBaseUnits": "0",
+        "miningMintedBaseUnits": "4189010598012554959716406",
+        "transactionHash": "0x7f84b38b542b5fba1fb5235ad2dd5519fc1e9496ecbcd605959ebf3c49660aa4",
+        "ethereumBlockNumber": "12079944",
+        "blockTimestamp": "2026-11-06T23:55:24.000Z",
+        "logIndex": "179",
+        "confirmationStatus": "safe"
+      },
+      {
+        "afterRound": "454",
+        "throughRound": "455",
+        "completedBlockCount": "0",
+        "cumulativeWork": "11048",
+        "cumulativeBlockUnits": "1140662790326",
+        "amountBaseUnits": "0",
+        "miningMintedBaseUnits": "4189010598012554959716406",
+        "transactionHash": "0x7e7e35bb91bb6f7e24807cd53a46ba6affd4bb8bd67bc4a84c2c0e1e763f8632",
+        "ethereumBlockNumber": "12079895",
+        "blockTimestamp": "2026-11-06T23:45:24.000Z",
+        "logIndex": "196",
+        "confirmationStatus": "safe"
+      },
+      {
+        "afterRound": "453",
+        "throughRound": "454",
+        "completedBlockCount": "0",
+        "cumulativeWork": "11048",
+        "cumulativeBlockUnits": "1140662790326",
+        "amountBaseUnits": "0",
+        "miningMintedBaseUnits": "4189010598012554959716406",
+        "transactionHash": "0xca2dca6721ab9391108f8e5130b457b832f21b0c79db3ddd2d147a95acb84722",
+        "ethereumBlockNumber": "12079847",
+        "blockTimestamp": "2026-11-06T23:35:36.000Z",
+        "logIndex": "189",
+        "confirmationStatus": "safe"
+      },
+      {
+        "afterRound": "452",
+        "throughRound": "453",
+        "completedBlockCount": "0",
+        "cumulativeWork": "11048",
+        "cumulativeBlockUnits": "1140662790326",
+        "amountBaseUnits": "0",
+        "miningMintedBaseUnits": "4189010598012554959716406",
+        "transactionHash": "0x9c22cfe9a1c3bd8aba9688d5cc92b350a2e0a06a3d40b299f522fb37137df0be",
+        "ethereumBlockNumber": "12079796",
+        "blockTimestamp": "2026-11-06T23:25:24.000Z",
+        "logIndex": "182",
+        "confirmationStatus": "safe"
+      },
+      {
+        "afterRound": "451",
+        "throughRound": "452",
+        "completedBlockCount": "0",
+        "cumulativeWork": "11048",
+        "cumulativeBlockUnits": "1140662790326",
+        "amountBaseUnits": "0",
+        "miningMintedBaseUnits": "4189010598012554959716406",
+        "transactionHash": "0x27970ed0bd4dab4cb6ea20ba425696d48c915be5108cb15a96663924178dc8a5",
+        "ethereumBlockNumber": "12079747",
+        "blockTimestamp": "2026-11-06T23:15:24.000Z",
+        "logIndex": "167",
+        "confirmationStatus": "safe"
+      },
+      {
+        "afterRound": "450",
+        "throughRound": "451",
+        "completedBlockCount": "0",
+        "cumulativeWork": "11048",
+        "cumulativeBlockUnits": "1140662790326",
+        "amountBaseUnits": "0",
+        "miningMintedBaseUnits": "4189010598012554959716406",
+        "transactionHash": "0x7c072dc05c11bebdd383a07dd18886bec87b3e25e5e4c932d97758d8ca1f76fa",
+        "ethereumBlockNumber": "12079698",
+        "blockTimestamp": "2026-11-06T23:05:24.000Z",
+        "logIndex": "134",
+        "confirmationStatus": "safe"
+      },
+      {
+        "afterRound": "449",
+        "throughRound": "450",
+        "completedBlockCount": "0",
+        "cumulativeWork": "11048",
+        "cumulativeBlockUnits": "1140662790326",
+        "amountBaseUnits": "0",
+        "miningMintedBaseUnits": "4189010598012554959716406",
+        "transactionHash": "0x8b289acf83c96b27235ad1df5770273db32139934269b624ae465d5c4a5ee87b",
+        "ethereumBlockNumber": "12079648",
+        "blockTimestamp": "2026-11-06T22:55:24.000Z",
+        "logIndex": "172",
+        "confirmationStatus": "safe"
+      },
+      {
+        "afterRound": "448",
+        "throughRound": "449",
+        "completedBlockCount": "0",
+        "cumulativeWork": "11048",
+        "cumulativeBlockUnits": "1140662790326",
+        "amountBaseUnits": "0",
+        "miningMintedBaseUnits": "4189010598012554959716406",
+        "transactionHash": "0x6761f5705b3a264d326095d84847a82b6f423f5bd7fee7393af38f6a88da8f86",
+        "ethereumBlockNumber": "12079600",
+        "blockTimestamp": "2026-11-06T22:45:24.000Z",
+        "logIndex": "212",
+        "confirmationStatus": "safe"
+      },
+      {
+        "afterRound": "447",
+        "throughRound": "448",
+        "completedBlockCount": "0",
+        "cumulativeWork": "11048",
+        "cumulativeBlockUnits": "1140662790326",
+        "amountBaseUnits": "0",
+        "miningMintedBaseUnits": "4189010598012554959716406",
+        "transactionHash": "0x5ba9f7b6763be156c629ce9a04efee44746ca76cc609e464f5298aeef4836571",
+        "ethereumBlockNumber": "12079550",
+        "blockTimestamp": "2026-11-06T22:35:24.000Z",
+        "logIndex": "220",
+        "confirmationStatus": "safe"
+      },
+      {
+        "afterRound": "446",
+        "throughRound": "447",
+        "completedBlockCount": "0",
+        "cumulativeWork": "11048",
+        "cumulativeBlockUnits": "1140662790326",
+        "amountBaseUnits": "0",
+        "miningMintedBaseUnits": "4189010598012554959716406",
+        "transactionHash": "0x6f664e52e4599bb761a740517e38a6ef46b02fcec07799e3c9d555a936e8f280",
+        "ethereumBlockNumber": "12079501",
+        "blockTimestamp": "2026-11-06T22:25:24.000Z",
+        "logIndex": "199",
+        "confirmationStatus": "safe"
+      },
+      {
+        "afterRound": "445",
+        "throughRound": "446",
+        "completedBlockCount": "0",
+        "cumulativeWork": "11048",
+        "cumulativeBlockUnits": "1140662790326",
+        "amountBaseUnits": "0",
+        "miningMintedBaseUnits": "4189010598012554959716406",
+        "transactionHash": "0xff8963d56afd086abef55d1631a8a50b0e266ad3a49082ba37b29bc0cae98524",
+        "ethereumBlockNumber": "12079451",
+        "blockTimestamp": "2026-11-06T22:15:24.000Z",
+        "logIndex": "124",
+        "confirmationStatus": "safe"
+      }
+    ]
+  },
+  "recentRounds": [
+    {
+      "roundId": "416",
+      "endAt": "2026-11-06T17:10:00.000Z",
+      "sqkMintedBaseUnits": "0"
+    },
+    {
+      "roundId": "417",
+      "endAt": "2026-11-06T17:20:00.000Z",
+      "sqkMintedBaseUnits": "0"
+    },
+    {
+      "roundId": "418",
+      "endAt": "2026-11-06T17:30:00.000Z",
+      "sqkMintedBaseUnits": "0"
+    },
+    {
+      "roundId": "419",
+      "endAt": "2026-11-06T17:40:00.000Z",
+      "sqkMintedBaseUnits": "0"
+    },
+    {
+      "roundId": "420",
+      "endAt": "2026-11-06T17:50:00.000Z",
+      "sqkMintedBaseUnits": "0"
+    },
+    {
+      "roundId": "421",
+      "endAt": "2026-11-06T18:00:00.000Z",
+      "sqkMintedBaseUnits": "0"
+    },
+    {
+      "roundId": "422",
+      "endAt": "2026-11-06T18:10:00.000Z",
+      "sqkMintedBaseUnits": "0"
+    },
+    {
+      "roundId": "423",
+      "endAt": "2026-11-06T18:20:00.000Z",
+      "sqkMintedBaseUnits": "0"
+    },
+    {
+      "roundId": "424",
+      "endAt": "2026-11-06T18:30:00.000Z",
+      "sqkMintedBaseUnits": "0"
+    },
+    {
+      "roundId": "425",
+      "endAt": "2026-11-06T18:40:00.000Z",
+      "sqkMintedBaseUnits": "0"
+    },
+    {
+      "roundId": "426",
+      "endAt": "2026-11-06T18:50:00.000Z",
+      "sqkMintedBaseUnits": "0"
+    },
+    {
+      "roundId": "427",
+      "endAt": "2026-11-06T19:00:00.000Z",
+      "sqkMintedBaseUnits": "0"
+    },
+    {
+      "roundId": "428",
+      "endAt": "2026-11-06T19:10:00.000Z",
+      "sqkMintedBaseUnits": "0"
+    },
+    {
+      "roundId": "429",
+      "endAt": "2026-11-06T19:20:00.000Z",
+      "sqkMintedBaseUnits": "0"
+    },
+    {
+      "roundId": "430",
+      "endAt": "2026-11-06T19:30:00.000Z",
+      "sqkMintedBaseUnits": "0"
+    },
+    {
+      "roundId": "431",
+      "endAt": "2026-11-06T19:40:00.000Z",
+      "sqkMintedBaseUnits": "0"
+    },
+    {
+      "roundId": "432",
+      "endAt": "2026-11-06T19:50:00.000Z",
+      "sqkMintedBaseUnits": "0"
+    },
+    {
+      "roundId": "433",
+      "endAt": "2026-11-06T20:00:00.000Z",
+      "sqkMintedBaseUnits": "0"
+    },
+    {
+      "roundId": "434",
+      "endAt": "2026-11-06T20:10:00.000Z",
+      "sqkMintedBaseUnits": "0"
+    },
+    {
+      "roundId": "435",
+      "endAt": "2026-11-06T20:20:00.000Z",
+      "sqkMintedBaseUnits": "0"
+    },
+    {
+      "roundId": "436",
+      "endAt": "2026-11-06T20:30:00.000Z",
+      "sqkMintedBaseUnits": "0"
+    },
+    {
+      "roundId": "437",
+      "endAt": "2026-11-06T20:40:00.000Z",
+      "sqkMintedBaseUnits": "0"
+    },
+    {
+      "roundId": "438",
+      "endAt": "2026-11-06T20:50:00.000Z",
+      "sqkMintedBaseUnits": "0"
+    },
+    {
+      "roundId": "439",
+      "endAt": "2026-11-06T21:00:00.000Z",
+      "sqkMintedBaseUnits": "0"
+    },
+    {
+      "roundId": "440",
+      "endAt": "2026-11-06T21:10:00.000Z",
+      "sqkMintedBaseUnits": "0"
+    },
+    {
+      "roundId": "441",
+      "endAt": "2026-11-06T21:20:00.000Z",
+      "sqkMintedBaseUnits": "0"
+    },
+    {
+      "roundId": "442",
+      "endAt": "2026-11-06T21:30:00.000Z",
+      "sqkMintedBaseUnits": "0"
+    },
+    {
+      "roundId": "443",
+      "endAt": "2026-11-06T21:40:00.000Z",
+      "sqkMintedBaseUnits": "0"
+    },
+    {
+      "roundId": "444",
+      "endAt": "2026-11-06T21:50:00.000Z",
+      "sqkMintedBaseUnits": "0"
+    },
+    {
+      "roundId": "445",
+      "endAt": "2026-11-06T22:00:00.000Z",
+      "sqkMintedBaseUnits": "0"
+    },
+    {
+      "roundId": "446",
+      "endAt": "2026-11-06T22:10:00.000Z",
+      "sqkMintedBaseUnits": "0"
+    },
+    {
+      "roundId": "447",
+      "endAt": "2026-11-06T22:20:00.000Z",
+      "sqkMintedBaseUnits": "0"
+    },
+    {
+      "roundId": "448",
+      "endAt": "2026-11-06T22:30:00.000Z",
+      "sqkMintedBaseUnits": "0"
+    },
+    {
+      "roundId": "449",
+      "endAt": "2026-11-06T22:40:00.000Z",
+      "sqkMintedBaseUnits": "0"
+    },
+    {
+      "roundId": "450",
+      "endAt": "2026-11-06T22:50:00.000Z",
+      "sqkMintedBaseUnits": "0"
+    },
+    {
+      "roundId": "451",
+      "endAt": "2026-11-06T23:00:00.000Z",
+      "sqkMintedBaseUnits": "0"
+    },
+    {
+      "roundId": "452",
+      "endAt": "2026-11-06T23:10:00.000Z",
+      "sqkMintedBaseUnits": "0"
+    },
+    {
+      "roundId": "453",
+      "endAt": "2026-11-06T23:20:00.000Z",
+      "sqkMintedBaseUnits": "0"
+    },
+    {
+      "roundId": "454",
+      "endAt": "2026-11-06T23:30:00.000Z",
+      "sqkMintedBaseUnits": "0"
+    },
+    {
+      "roundId": "455",
+      "endAt": "2026-11-06T23:40:00.000Z",
+      "sqkMintedBaseUnits": "0"
+    },
+    {
+      "roundId": "456",
+      "endAt": "2026-11-06T23:50:00.000Z",
+      "sqkMintedBaseUnits": "0"
+    },
+    {
+      "roundId": "457",
+      "endAt": "2026-11-07T00:00:00.000Z",
+      "sqkMintedBaseUnits": "0"
+    }
+  ]
+}

@@ -1,8 +1,9 @@
-import { type CSSProperties } from "react";
+import { useEffect, useRef, type CSSProperties } from "react";
 import {
   WARRIORS,
   warrior,
   DIFFICULTIES,
+  levelBonus,
   levelFor,
   levelStart,
   type WarriorId,
@@ -11,8 +12,10 @@ import {
   type Battle,
   type Fighter,
   type Action,
+  type Match,
   type Side,
 } from "../game";
+import type { SqueekMods } from "../squeek";
 import { Icon } from "./Icon";
 
 export function Sprite({
@@ -106,7 +109,7 @@ export function Menu({
             <br />
             <span>Big battles.</span>
           </h1>
-          <p>A turn-based hamster battle game.</p>
+          <p>A turn-based battle game powered by a real hamster wheel.</p>
           <button className="button primary play-now" onClick={onPlay}>
             <Icon name="play" size={18} />
             Play now
@@ -203,6 +206,7 @@ export function Selection({
   setDifficulty,
   onStart,
   onBack,
+  xp,
 }: {
   selected: WarriorId;
   setSelected: (id: WarriorId) => void;
@@ -210,8 +214,11 @@ export function Selection({
   setDifficulty: (d: Difficulty) => void;
   onStart: () => void;
   onBack: () => void;
+  xp: number;
 }) {
   const chosen = warrior(selected);
+  const bonus = levelBonus(xp);
+  const upgrade = Math.round((bonus - 1) * 100);
   return (
     <section className="selection-view">
       <div className="view-heading">
@@ -274,14 +281,14 @@ export function Selection({
                 <Icon name="heart" size={16} />
                 Health
               </dt>
-              <dd>{chosen.hp}</dd>
+              <dd>{Math.round(chosen.hp * bonus)}</dd>
             </div>
             <div>
               <dt>
                 <Icon name="sword" size={16} />
                 Attack
               </dt>
-              <dd>{chosen.attack}</dd>
+              <dd>{Math.round(chosen.attack * bonus)}</dd>
             </div>
             <div>
               <dt>
@@ -291,6 +298,11 @@ export function Selection({
               <dd>{chosen.armor}</dd>
             </div>
           </dl>
+          <p className="small muted">
+            {upgrade
+              ? `Level ${levelFor(xp)} upgrade: +${upgrade}% health and attack, included above.`
+              : "Each level adds 2% health and attack, up to 12%."}
+          </p>
           <div className="ability-detail">
             <span className="small muted">Special · 60 energy</span>
             <h3>{chosen.special}</h3>
@@ -384,6 +396,7 @@ function FighterHealth({ fighter, side }: { fighter: Fighter; side: Side }) {
 }
 export function BattleView({
   battle,
+  mods,
   onAction,
   onLeave,
   onReplay,
@@ -393,6 +406,7 @@ export function BattleView({
   saved,
 }: {
   battle: Battle;
+  mods: SqueekMods;
   onAction: (a: Action) => void;
   onLeave: () => void;
   onReplay: () => void;
@@ -405,6 +419,16 @@ export function BattleView({
   const finished = battle.turn === "finished";
   const won = battle.winner === "player";
   const waiting = battle.turn === "enemy";
+  const specialBlocked = waiting || battle.player.energy < 60;
+  const replay = useRef<HTMLButtonElement>(null);
+  // The action buttons vanish when the battle ends. Without this, keyboard
+  // focus would fall back to the top of the page.
+  useEffect(() => {
+    if (finished && !document.querySelector("dialog[open]"))
+      replay.current?.focus({ preventScroll: true });
+  }, [finished]);
+  const { boostedTurns, bonusDamage, bonusEnergy, events } = battle.power;
+  const powered = boostedTurns > 0 || events.length > 0;
   return (
     <section className="battle-view">
       <div className="view-heading">
@@ -429,7 +453,7 @@ export function BattleView({
           </button>
         )}
       </div>
-      <div className="battle-arena">
+      <div className={`battle-arena ${mods.energyPerTurn ? "powered" : ""}`}>
         <div className="battle-hud">
           <FighterHealth fighter={battle.player} side="player" />
           <span className="battle-versus" aria-hidden="true">
@@ -489,24 +513,33 @@ export function BattleView({
               +{earnedXP} XP {levelUp && <span>· Level up!</span>}
             </strong>
             <span className="small muted">
+              {powered
+                ? `Squeek Power added ${bonusEnergy} energy and ${bonusDamage} damage`
+                : "Neutral rules · No Squeek Power applied"}
+            </span>
+            <span className="small muted">
               {saved
-                ? "Saved in this browser"
+                ? "Local record, saved in this browser"
                 : "Session only · Progress could not be saved"}
             </span>
           </div>
         ) : (
-          <div className="turn-indicator">
+          <div
+            className={`turn-indicator ${last?.actor === "arena" ? "arena-event" : ""}`}
+          >
             <span className={`status-dot ${waiting ? "enemy-dot" : ""}`} />
-            {waiting
-              ? `${warrior(battle.enemy.id).name} is choosing a move…`
-              : "Your turn. Make it count."}
+            {last?.actor === "arena"
+              ? last.text
+              : waiting
+                ? `${warrior(battle.enemy.id).name} is choosing a move…`
+                : "Your turn. Make it count."}
           </div>
         )}
       </div>
       <div className="battle-controls">
         {finished ? (
           <div className="replay-actions">
-            <button className="button primary" onClick={onReplay}>
+            <button className="button primary" ref={replay} onClick={onReplay}>
               <Icon name="play" size={18} />
               Battle again
             </button>
@@ -521,31 +554,35 @@ export function BattleView({
               <button
                 className="battle-action attack"
                 onClick={() => onAction("attack")}
-                disabled={waiting}
+                aria-disabled={waiting}
               >
                 <Icon name="sword" size={24} />
                 <span>
                   <strong>Attack</strong>
-                  <span className="small">Deal damage · +15 energy</span>
+                  <span className="small">
+                    Deal damage · +{15 + mods.energyPerTurn} energy
+                  </span>
                 </span>
                 <kbd>1</kbd>
               </button>
               <button
                 className="battle-action defend"
                 onClick={() => onAction("defend")}
-                disabled={waiting}
+                aria-disabled={waiting}
               >
                 <Icon name="shield" size={24} />
                 <span>
                   <strong>Defend</strong>
-                  <span className="small">Block 60% · +35 energy</span>
+                  <span className="small">
+                    Block 60% · +{35 + mods.energyPerTurn} energy
+                  </span>
                 </span>
                 <kbd>2</kbd>
               </button>
               <button
                 className="battle-action special"
                 onClick={() => onAction("special")}
-                disabled={waiting || battle.player.energy < 60}
+                aria-disabled={specialBlocked}
                 aria-describedby="special-hint"
               >
                 <Icon name="spark" size={24} />
@@ -584,7 +621,11 @@ export function BattleView({
             {battle.events.map((event, i) => (
               <li key={i}>
                 <span className="small muted">
-                  {event.actor === "player" ? "You" : "Opponent"}
+                  {event.actor === "player"
+                    ? "You"
+                    : event.actor === "arena"
+                      ? "Arena"
+                      : "Opponent"}
                 </span>
                 <span>{event.text}</span>
               </li>
@@ -648,6 +689,14 @@ export function HowToPlay() {
           </li>
         ))}
       </ul>
+      <h3>Squeek Power</h3>
+      <p className="small muted">
+        A real hamster wheel feeds the arena. While the signal says HARDWARE
+        LIVE, wheel speed adds energy on your turns, verified distance adds
+        damage, and new settlements trigger arena events. Simulated, stale or
+        offline data never changes a battle. Open Wheel details for the current
+        reading and every bonus.
+      </p>
       <h3>Keep getting fluffier</h3>
       <p className="small muted">
         Win for 60, 100, or 160 XP depending on difficulty. A loss grants 15 XP.
@@ -662,6 +711,12 @@ export function HowToPlay() {
       </p>
     </div>
   );
+}
+function powerLabel(match: Match) {
+  const power = match.power;
+  if (!power) return "Not recorded";
+  if (!power.boostedTurns && !power.events) return "Neutral";
+  return `+${power.bonusEnergy} energy, +${power.bonusDamage} damage`;
 }
 export function Leaderboard({
   progress,
@@ -683,6 +738,7 @@ export function Leaderboard({
           {
             game: "BATTLE HAMSTER",
             scope: "local-only, unverified",
+            onChain: false,
             exportedAt: new Date().toISOString(),
             matches: progress.matches,
           },
@@ -708,12 +764,17 @@ export function Leaderboard({
       <div className="local-scope">
         <Icon name="shield" size={18} />
         <span className="small">
-          Local records only · No global or on-chain ranking
+          Local records · None of these matches are on-chain
         </span>
       </div>
       {matches.length ? (
         <>
-          <div className="leaderboard-table">
+          <div
+            className="leaderboard-table"
+            role="region"
+            aria-label="Best victories"
+            tabIndex={0}
+          >
             <table>
               <thead>
                 <tr>
@@ -722,6 +783,7 @@ export function Leaderboard({
                   <th scope="col">Challenge</th>
                   <th scope="col">XP</th>
                   <th scope="col">Rounds</th>
+                  <th scope="col">Squeek Power</th>
                 </tr>
               </thead>
               <tbody>
@@ -741,15 +803,12 @@ export function Leaderboard({
                     <td>{DIFFICULTIES[m.difficulty].name}</td>
                     <td>+{m.xp}</td>
                     <td>{m.rounds}</td>
+                    <td>{powerLabel(m)}</td>
                   </tr>
                 ))}
               </tbody>
             </table>
           </div>
-          <button className="button secondary" onClick={download}>
-            <Icon name="download" size={18} />
-            Export match records
-          </button>
         </>
       ) : (
         <div className="empty-state">
@@ -763,6 +822,49 @@ export function Leaderboard({
             <Icon name="arrow" size={18} />
           </button>
         </div>
+      )}
+      {progress.matches.length > 0 && (
+        <>
+          <h3>Battle history</h3>
+          <div
+            className="leaderboard-table"
+            role="region"
+            aria-label="Battle history"
+            tabIndex={0}
+          >
+            <table>
+              <thead>
+                <tr>
+                  <th scope="col">Result</th>
+                  <th scope="col">Battle</th>
+                  <th scope="col">Date</th>
+                  <th scope="col">XP</th>
+                  <th scope="col">Squeek Power</th>
+                  <th scope="col">Record</th>
+                </tr>
+              </thead>
+              <tbody>
+                {progress.matches.map((m) => (
+                  <tr key={m.id}>
+                    <td>{m.won ? "Won" : "Lost"}</td>
+                    <td>
+                      {warrior(m.warrior).name} vs {warrior(m.opponent).name} ·{" "}
+                      {DIFFICULTIES[m.difficulty].name}
+                    </td>
+                    <td>{new Date(m.date).toLocaleDateString()}</td>
+                    <td>+{m.xp}</td>
+                    <td>{powerLabel(m)}</td>
+                    <td>Local</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+          <button className="button secondary" onClick={download}>
+            <Icon name="download" size={18} />
+            Export match records
+          </button>
+        </>
       )}
       <p className="small muted">
         Records can be edited through browser storage and are not verified.

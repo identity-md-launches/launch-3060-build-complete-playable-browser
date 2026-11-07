@@ -12,6 +12,8 @@ import { STORAGE_KEY } from "../src/storage";
 function click(name: string | RegExp) {
   fireEvent.click(screen.getByRole("button", { name }));
 }
+const blocked = (name: RegExp) =>
+  screen.getByRole("button", { name }).getAttribute("aria-disabled") === "true";
 async function tick() {
   await flush(async () => {
     await vi.advanceTimersByTimeAsync(500);
@@ -24,6 +26,8 @@ function start() {
 describe("Game interactions in a DOM environment", () => {
   beforeEach(() => {
     localStorage.clear();
+    // Gameplay never waits on the API; with no answer it is simply neutral.
+    vi.stubGlobal("fetch", vi.fn().mockRejectedValue(new TypeError("offline")));
     vi.useFakeTimers();
     vi.spyOn(Math, "random").mockReturnValue(0.5);
   });
@@ -31,6 +35,7 @@ describe("Game interactions in a DOM environment", () => {
     cleanup();
     vi.useRealTimers();
     vi.restoreAllMocks();
+    vi.unstubAllGlobals();
   });
   it("opens all menu panels and shows an empty local leaderboard", () => {
     render(<App />);
@@ -42,7 +47,10 @@ describe("Game interactions in a DOM environment", () => {
     expect(screen.queryByRole("table")).toBeNull();
     click("Close dialog");
     click("About the arena");
-    expect(screen.getByText("Squeekchain connection")).toBeTruthy();
+    click("Open wheel details");
+    expect(
+      screen.getByRole("heading", { name: "Live Squeek Power" }),
+    ).toBeTruthy();
     click("Close dialog");
     click("Play now");
     expect(
@@ -70,31 +78,21 @@ describe("Game interactions in a DOM environment", () => {
     }
     click("Enter the arena");
     expect(screen.getByRole("heading", { name: "The Burrow" })).toBeTruthy();
-    expect(
-      (screen.getByRole("button", { name: /^Special/ }) as HTMLButtonElement)
-        .disabled,
-    ).toBe(true);
+    expect(blocked(/^Special/)).toBe(true);
   });
   it("locks repeated turns, restores energy with guard, and lets the special fire", async () => {
     render(<App />);
     start();
     click(/^Defend/);
-    expect(
-      (screen.getByRole("button", { name: /^Attack/ }) as HTMLButtonElement)
-        .disabled,
-    ).toBe(true);
+    expect(blocked(/^Attack/)).toBe(true);
     await tick();
-    expect(
-      (screen.getByRole("button", { name: /^Special/ }) as HTMLButtonElement)
-        .disabled,
-    ).toBe(false);
+    expect(blocked(/^Special/)).toBe(false);
     click(/^Special/);
-    expect(screen.getByRole("status").textContent).toContain("Sunflower slash");
+    expect(document.querySelector(".live-action")!.textContent).toContain(
+      "Sunflower slash",
+    );
     await tick();
-    expect(
-      (screen.getByRole("button", { name: /^Special/ }) as HTMLButtonElement)
-        .disabled,
-    ).toBe(true);
+    expect(blocked(/^Special/)).toBe(true);
     fireEvent.keyDown(window, { key: "1" });
     await tick();
     expect(screen.getByText(/View turn history/).textContent).toContain("6");
@@ -104,15 +102,14 @@ describe("Game interactions in a DOM environment", () => {
     start();
     let moves = 0;
     while (screen.queryByRole("button", { name: /^Attack/ }) && moves < 40) {
-      const special = screen.getByRole("button", {
-        name: /^Special/,
-      }) as HTMLButtonElement;
-      click(special.disabled ? /^Attack/ : /^Special/);
+      click(blocked(/^Special/) ? /^Attack/ : /^Special/);
       await tick();
       moves++;
     }
     expect(moves).toBeLessThan(40);
-    expect(screen.getByRole("status").textContent).toContain("Victory");
+    expect(document.querySelector(".live-action")!.textContent).toContain(
+      "Victory",
+    );
     expect(screen.getByRole("button", { name: "Battle again" })).toBeTruthy();
     const saved = JSON.parse(localStorage.getItem(STORAGE_KEY)!);
     expect(saved.wins).toBe(1);
@@ -126,7 +123,8 @@ describe("Game interactions in a DOM environment", () => {
     first.unmount();
     render(<App />);
     click("Leaderboard");
-    expect(screen.getAllByRole("row")).toHaveLength(2);
+    // Header and one row in each of the leaderboard and history tables.
+    expect(screen.getAllByRole("row")).toHaveLength(4);
     click("Close dialog");
     expect(localStorage.getItem(STORAGE_KEY)).toBe(JSON.stringify(saved));
   });
@@ -151,10 +149,7 @@ describe("Game interactions in a DOM environment", () => {
     start();
     let moves = 0;
     while (screen.queryByRole("button", { name: /^Attack/ }) && moves < 40) {
-      const special = screen.getByRole("button", {
-        name: /^Special/,
-      }) as HTMLButtonElement;
-      click(special.disabled ? /^Attack/ : /^Special/);
+      click(blocked(/^Special/) ? /^Attack/ : /^Special/);
       await tick();
       moves++;
     }
