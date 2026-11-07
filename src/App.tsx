@@ -5,6 +5,7 @@ import {
   chooseAI,
   createBattle,
   DIFFICULTIES,
+  dropSurge,
   levelFor,
   recordBattle,
   type Action,
@@ -61,15 +62,28 @@ export default function App() {
         : "Progress cannot be saved in this browser. Keep this tab open to continue this session.",
     );
   }, [progress]);
+  // Battles this tab finished that no other tab's snapshot has confirmed yet.
+  // Two tabs can finish at the same moment, each saving a record without the
+  // other's battle. Each tab merges its unconfirmed battles back into whatever
+  // snapshot arrives, so both records survive and XP is counted once per ID.
+  const unconfirmed = useRef(new Map<string, Battle>());
   // Another tab finishing a battle must not be overwritten by this tab's older
   // copy, which would silently lose XP.
   useEffect(() => {
     const handler = (event: StorageEvent) => {
       if (event.key !== STORAGE_KEY || !event.newValue) return;
       try {
-        const next = parseProgress(event.newValue);
-        savedProgress.current = next;
-        setProgress(next);
+        const incoming = parseProgress(event.newValue);
+        let merged = incoming;
+        for (const [id, finished] of unconfirmed.current) {
+          if (incoming.matches.some((m) => m.id === id))
+            unconfirmed.current.delete(id);
+          else merged = recordBattle(merged, finished);
+        }
+        // Marked as saved only when nothing was merged; otherwise the save
+        // effect writes the merged record and the other tab adopts it.
+        savedProgress.current = incoming;
+        setProgress(merged);
       } catch {
         // An unreadable write from elsewhere is ignored; this tab keeps its copy.
       }
@@ -103,6 +117,7 @@ export default function App() {
     playSound("click", progress.sound);
   }
   function finish(next: Battle) {
+    unconfirmed.current.set(next.id, next);
     setProgress((previous) => recordBattle(previous, next));
     if (next.winner === "player") playSound("win", progress.sound);
   }
@@ -150,6 +165,14 @@ export default function App() {
     playSound("special", progress.sound);
     apply(applyArenaEvent(current, event));
   }, [squeek.pendingEvent, screen]);
+  // A settlement surge needs a live wheel. If the signal drops before the hit,
+  // the surge is cancelled rather than held for when the signal returns.
+  useEffect(() => {
+    const current = battleRef.current;
+    if (!current) return;
+    const next = dropSurge(current, squeek.signal.status);
+    if (next !== current) apply(next);
+  }, [squeek.signal.status, battle?.surgePct]);
   // The AI can end the battle behind an open "Leave" dialog.
   useEffect(() => {
     if (battle?.winner) setOverlay((o) => (o === "leave" ? null : o));
@@ -300,6 +323,7 @@ export default function App() {
             earnedXP={lastMatch?.xp ?? DIFFICULTIES[difficulty].xp}
             levelUp={levelUp}
             saved={!saveFailed}
+            overlayOpen={overlay !== null}
           />
         )}
         <ProgressBar progress={progress} />

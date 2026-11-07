@@ -4,6 +4,7 @@ import {
   classifySignal,
   deriveModifiers,
   detectSettlementEvent,
+  lastFinishedDeviceDay,
   parseSettlements,
   parseStats,
   parseStatus,
@@ -87,6 +88,8 @@ export interface SqueekView {
   stats: StatsSnapshot | null;
   settlements: SettlementsSnapshot | null;
   settlementError: string | null;
+  /** Why the latest statistics request failed, when it did. */
+  statsError: string | null;
   /** Reading age in milliseconds, or null without a reading. */
   ageMs: number | null;
   checking: boolean;
@@ -102,6 +105,9 @@ export class SqueekFeed {
   private stats: StatsSnapshot | null = null;
   private settlements: SettlementsSnapshot | null = null;
   private settlementError: string | null = null;
+  private statsError: string | null = null;
+  /** The device day a rollover re-read was last made for, so it runs once. */
+  private rolloverDay: string | null = null;
   private lastError: string | null = null;
   private lastSuccess: number | null = null;
   // Set only when generatedAt moves. A frozen or cached body therefore keeps
@@ -184,12 +190,24 @@ export class SqueekFeed {
       this.snapshot = next;
       this.lastSuccess = now;
       this.lastError = null;
+      // When the device day rolls over at 12:00 UTC, the statistics' finished
+      // day expires. Read them again once instead of waiting for the next poll.
+      const day = lastFinishedDeviceDay(next.generatedAt);
+      if (
+        this.stats &&
+        this.stats.previousDay?.date !== day &&
+        this.rolloverDay !== day
+      ) {
+        this.rolloverDay = day;
+        void this.poll("stats");
+      }
     } else if (channel === "stats") {
       const { body } = await readApi(
         "/v1/measurement/stats?range=7d",
         "no-cache",
       );
       this.stats = parseStats(body);
+      this.statsError = null;
     } else {
       const { body, headers } = await readApi("/v1/settlements", "no-cache");
       const next = parseSettlements(
@@ -231,6 +249,7 @@ export class SqueekFeed {
       }
       if (channel === "status") this.lastError = failure.message;
       if (channel === "settlements") this.settlementError = failure.message;
+      if (channel === "stats") this.statsError = failure.message;
     }
     this.inFlight.delete(channel);
     this.schedule(channel, delay);
@@ -255,6 +274,7 @@ export class SqueekFeed {
       stats: this.stats,
       settlements: this.settlements,
       settlementError: this.settlementError,
+      statsError: this.statsError,
       ageMs: signal.status === "offline" ? null : ageMs,
       checking: this.inFlight.has("status"),
       coolingDown: now < this.coolUntil,

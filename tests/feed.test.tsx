@@ -10,6 +10,7 @@ import {
 import App from "../src/App";
 import { STORAGE_KEY } from "../src/storage";
 import { POLL, SqueekFeed } from "../src/squeekFeed";
+import { createBattle, freshProgress, recordBattle } from "../src/game";
 
 const fixture = (name: string) =>
   JSON.parse(readFileSync(`tests/fixtures/live-${name}.json`, "utf8"));
@@ -30,6 +31,8 @@ function fakeApi() {
     freezeAt: null as string | null,
     fail: null as null | (() => Response | Promise<Response>),
     settlementFail: null as null | (() => Response),
+    settlements: (() => undefined) as Override,
+    statsFail: null as null | (() => Promise<Response>),
     calls: [] as { url: string; cache?: RequestCache }[],
   };
   const fetchMock = vi.fn(async (url: string, init?: RequestInit) => {
@@ -48,6 +51,7 @@ function fakeApi() {
       if (state.settlementFail) return state.settlementFail();
       const body = fixture("settlements");
       body.summary.settlementCount = String(state.settlementCount);
+      state.settlements(body);
       return json(body, {
         headers: {
           "Content-Type": "application/json",
@@ -55,6 +59,7 @@ function fakeApi() {
         },
       });
     }
+    if (state.statsFail) return state.statsFail();
     return json(fixture("stats"));
   });
   vi.stubGlobal("fetch", fetchMock);
@@ -78,9 +83,13 @@ function newFeed() {
   return feed;
 }
 
+// The captured statistics' last finished day is 2026-11-05, which is current
+// until 2026-11-07T12:00Z. Tests run at the capture time, not the host's clock.
+const CAPTURED_AT = new Date("2026-11-07T00:12:00.000Z");
 beforeEach(() => {
   localStorage.clear();
   vi.useFakeTimers();
+  vi.setSystemTime(CAPTURED_AT);
   vi.spyOn(Math, "random").mockReturnValue(0.5);
 });
 afterEach(() => {
@@ -250,6 +259,33 @@ describe("Squeekchain API client", () => {
     expect(feed.view().signal.status).toBe("live");
     feed.stop();
   });
+  it("drops an expired finished day at the noon rollover, even while statistics fail", async () => {
+    vi.setSystemTime(new Date("2026-11-07T11:55:00.000Z"));
+    const { state } = fakeApi();
+    const feed = newFeed();
+    await advance(10);
+    const before = feed.view();
+    expect(before.signal.status).toBe("live");
+    expect(before.mods.verifiedDistanceMm).toBe(6_348_818);
+    expect(before.mods.damagePct).toBe(15);
+    state.statsFail = () => Promise.reject(new TypeError("gone"));
+    const statsCalls = () =>
+      state.calls.filter((c) => c.url.includes("/v1/measurement/stats")).length;
+    const callsBefore = statsCalls();
+    await advance(25 * 60_000);
+    const after = feed.view();
+    expect(after.signal.status).toBe("live");
+    expect(after.stats?.previousDay?.date).toBe("2026-11-05");
+    expect(after.mods.verifiedDistanceMm).toBe(0);
+    expect(after.mods.trailTier).toBe("No trail");
+    expect(after.mods.damagePct).toBe(0);
+    expect(after.statsError).toMatch(/Unable to reach the API/);
+    // Failed reads retry on the 2-minute backoff plus one rollover re-read,
+    // never once per 10-second status poll.
+    expect(statsCalls() - callsBefore).toBeGreaterThan(0);
+    expect(statsCalls() - callsBefore).toBeLessThanOrEqual(25 / 2 + 2);
+    feed.stop();
+  });
   it("banks one event per settlement, and only with a live wheel", async () => {
     const { state } = fakeApi();
     const feed = newFeed();
@@ -392,6 +428,39 @@ describe("Squeek Power in the game", () => {
     expect(hp - enemyHealth()).toBe(18);
     await advance(500);
   });
+  it("cancels a Block rush surge when the signal stops being live before the hit", async () => {
+    const { state } = fakeApi();
+    render(<App />);
+    await advance(10);
+    start();
+    state.settlementCount = 272;
+    state.settlements = (b) => {
+      b.recentSettlements[0].transactionHash = "0x" + "b".repeat(64);
+      b.recentSettlements[0].completedBlockCount = "3";
+    };
+    await advance(POLL.settlements + 10);
+    expect(playerEnergy()).toBe(60);
+    expect(screen.getAllByText(/Block rush/).length).toBeGreaterThan(0);
+    state.fail = () => Promise.reject(new TypeError("gone"));
+    await advance(POLL.status + 10);
+    expect(
+      screen.getByRole("region", { name: "Live Squeek Power" }).textContent,
+    ).toContain("STALE");
+    expect(screen.getAllByText(/surge is cancelled/).length).toBeGreaterThan(0);
+    // Recovering the signal does not bring the cancelled surge back.
+    state.fail = null;
+    await advance(POLL.maxBackoff + 10);
+    state.fail = () => Promise.reject(new TypeError("gone"));
+    await advance(POLL.maxBackoff + 10);
+    expect(
+      screen.getByRole("region", { name: "Live Squeek Power" }).textContent,
+    ).not.toContain("HARDWARE LIVE");
+    const hp = enemyHealth();
+    click(/^Attack/);
+    expect(hp - enemyHealth()).toBe(18);
+    expect(screen.queryAllByText(/Squeek Power: \+/).length).toBe(0);
+    await advance(500);
+  });
   it("applies a settlement during a battle exactly once", async () => {
     const { state } = fakeApi();
     render(<App />);
@@ -459,6 +528,8 @@ describe("Squeek Power in the game", () => {
     let moves = 0;
     while (screen.queryByRole("button", { name: /^Defend/ }) && moves < 60) {
       click(/^Defend/);
+      // A real click focuses the button; jsdom's synthetic click does not.
+      screen.getByRole("button", { name: "Leave" }).focus();
       click("Leave");
       await advance(500);
       moves++;
@@ -469,7 +540,8 @@ describe("Squeek Power in the game", () => {
     expect(
       screen.queryByRole("heading", { name: "Leave this battle?" }),
     ).toBeNull();
-    expect(screen.getByRole("button", { name: "Battle again" })).toBeTruthy();
+    const replay = screen.getByRole("button", { name: "Battle again" });
+    expect(document.activeElement).toBe(replay);
     expect(JSON.parse(localStorage.getItem(STORAGE_KEY)!).losses).toBe(1);
   });
   it("reads the wheel again from Check now", async () => {
@@ -548,6 +620,53 @@ describe("Squeek Power in the game", () => {
       );
     });
     expect(screen.getByText(/Level 3/)).toBeTruthy();
+  });
+  it("keeps both battles when two tabs finish at the same moment", async () => {
+    fakeApi();
+    render(<App />);
+    await advance(10);
+    // This tab forfeits a battle and saves a one-match record.
+    start();
+    click("Leave");
+    click("Leave battle");
+    await advance(10);
+    const mine = JSON.parse(localStorage.getItem(STORAGE_KEY)!);
+    expect(mine.matches.length).toBe(1);
+    // The other tab finished at the same moment from the same empty start, so
+    // its save holds only its own battle and overwrites ours.
+    const theirs = recordBattle(freshProgress(), {
+      ...createBattle("mochi", "rookie", 0, () => 0.5),
+      turn: "finished",
+      winner: "enemy",
+    });
+    const raw = JSON.stringify(theirs);
+    localStorage.setItem(STORAGE_KEY, raw);
+    await flush(async () => {
+      window.dispatchEvent(
+        new StorageEvent("storage", { key: STORAGE_KEY, newValue: raw }),
+      );
+    });
+    const merged = JSON.parse(localStorage.getItem(STORAGE_KEY)!);
+    expect(merged.matches.length).toBe(2);
+    expect(merged.losses).toBe(2);
+    expect(merged.xp).toBe(30);
+    expect(new Set(merged.matches.map((m: { id: string }) => m.id)).size).toBe(
+      2,
+    );
+    // The other tab adopts the merged record and echoes it back: nothing is
+    // counted twice, and this tab's battle is now confirmed.
+    await flush(async () => {
+      window.dispatchEvent(
+        new StorageEvent("storage", {
+          key: STORAGE_KEY,
+          newValue: JSON.stringify(merged),
+        }),
+      );
+    });
+    const settled = JSON.parse(localStorage.getItem(STORAGE_KEY)!);
+    expect(settled.xp).toBe(30);
+    expect(settled.matches.length).toBe(2);
+    expect(screen.getByText(/30 \/ 100 XP/)).toBeTruthy();
   });
   it("shows character upgrades in the loadout", async () => {
     fakeApi();

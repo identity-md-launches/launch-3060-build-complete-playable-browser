@@ -203,10 +203,13 @@ export function act(
   const target = { ...battle[targetSide] };
   if (action === "special" && attacker.energy < 60) return battle;
   const name = warrior(attacker.id).name;
+  // A settlement surge only counts while the wheel is HARDWARE LIVE. Once the
+  // player acts on any other signal, a banked surge is discarded, never used.
   let damage = 0,
     healed = 0,
     bonusDamage = 0,
-    surgePct = battle.surgePct;
+    surgePct =
+      side === "player" && squeek.source !== "live" ? 0 : battle.surgePct;
   const guarded = target.guarding;
   // Guard lasts through the opponent's next action, including a defensive turn.
   attacker.guarding = false;
@@ -282,6 +285,28 @@ export function act(
       bonusEnergy: battle.power.bonusEnergy + bonusEnergy,
       bonusDamage: battle.power.bonusDamage + bonusDamage,
     },
+  };
+}
+/**
+ * Discards a banked settlement surge when the signal is no longer HARDWARE
+ * LIVE, so the next hit cannot carry Squeek Power under neutral rules.
+ */
+export function dropSurge(battle: Battle, signal: SignalStatus): Battle {
+  if (signal === "live" || !battle.surgePct || battle.winner) return battle;
+  return {
+    ...battle,
+    surgePct: 0,
+    events: [
+      ...battle.events.slice(-19),
+      {
+        actor: "arena",
+        action: "event",
+        damage: 0,
+        healed: 0,
+        guarded: false,
+        text: "The wheel signal is no longer live. The next-hit surge is cancelled.",
+      },
+    ],
   };
 }
 /** Applies a settlement event once. A finished battle or a repeat is ignored. */

@@ -407,6 +407,132 @@ export async function powerChecks({
   );
 
   await check(
+    `${engineName}: a Block rush surge is cancelled when the signal drops before the hit`,
+    async () => {
+      const outcomes = {};
+      for (const lost of ["offline", "simulated", "stale"]) {
+        const { api, context, page } = await session("idle");
+        await page.clock.install();
+        await page.addInitScript(fixedRandom);
+        await page.goto(url);
+        await waitForSignal(page, "HARDWARE LIVE");
+        await page.waitForTimeout(300);
+        await page
+          .getByRole("button", { name: "Play now", exact: true })
+          .click();
+        await page.getByRole("button", { name: "Enter the arena" }).click();
+        api.settlements = 272;
+        api.newBlock = true;
+        await advance(page, 32);
+        assert.equal(await meter(page, "Your energy"), 60);
+        api.mode = lost;
+        await advance(page, 11);
+        await waitForSignal(
+          page,
+          lost === "offline" ? "STALE" : lost.toUpperCase(),
+        );
+        const before = await meter(page, "Opponent health");
+        await page.getByRole("button", { name: /^Attack/ }).click();
+        const damage = before - (await meter(page, "Opponent health"));
+        const log = await page.locator(".battle-log").textContent();
+        assert.equal(damage, 18, `${lost}: neutral Pip hit on Nyx`);
+        assert.match(log, /surge is cancelled/);
+        assert.equal(log.includes("Squeek Power: +"), false, lost);
+        outcomes[lost] = { damage };
+        await context.close();
+      }
+      return outcomes;
+    },
+  );
+
+  await check(
+    `${engineName}: a defeat behind the Leave dialog hands focus to Battle again`,
+    async () => {
+      const { context, page } = await session("offline");
+      await page.addInitScript(fixedRandom);
+      await page.goto(url);
+      await page.getByRole("button", { name: "Play now", exact: true }).click();
+      await page.getByRole("radio", { name: /Champion/ }).check();
+      await page.getByRole("button", { name: "Enter the arena" }).click();
+      const replay = page.getByRole("button", { name: "Battle again" });
+      let turns = 0;
+      while (!(await replay.count()) && turns < 60) {
+        await page.getByRole("button", { name: /^Defend/ }).click();
+        await page.getByRole("button", { name: "Leave", exact: true }).click();
+        await page.waitForTimeout(500);
+        turns++;
+        const keep = page.getByRole("button", { name: "Keep fighting" });
+        if (await keep.count()) await keep.click();
+      }
+      assert.ok(await replay.count(), "the AI finished the battle");
+      const state = await page.evaluate(() => ({
+        dialogs: document.querySelectorAll("dialog[open]").length,
+        active: document.activeElement?.textContent?.trim(),
+        tag: document.activeElement?.tagName,
+      }));
+      assert.equal(state.dialogs, 0);
+      assert.equal(state.tag, "BUTTON");
+      assert.equal(state.active, "Battle again");
+      await context.close();
+      return { turns, ...state };
+    },
+  );
+
+  await check(
+    `${engineName}: two tabs finishing at the same moment keep both battles`,
+    async () => {
+      const context = await browser.newContext({
+        viewport: { width: 390, height: 844 },
+        reducedMotion: "reduce",
+      });
+      await installApi(context, { mode: "offline" });
+      const tabs = [await context.newPage(), await context.newPage()];
+      for (const tab of tabs) {
+        await tab.goto(url);
+        await tab
+          .getByRole("button", { name: "Play now", exact: true })
+          .click();
+        await tab.getByRole("button", { name: "Enter the arena" }).click();
+        await tab.getByRole("button", { name: "Leave", exact: true }).click();
+      }
+      await Promise.all(
+        tabs.map((tab) =>
+          tab.evaluate(() =>
+            [...document.querySelectorAll("dialog[open] button")]
+              .find((b) => b.textContent.trim() === "Leave battle")
+              .click(),
+          ),
+        ),
+      );
+      await tabs[0].waitForTimeout(500);
+      const results = [];
+      for (const tab of tabs) {
+        const stored = await tab.evaluate(() =>
+          JSON.parse(localStorage.getItem("battle-hamster:progress:v1")),
+        );
+        const strip = await tab
+          .locator(".progress-strip, .progress")
+          .first()
+          .innerText();
+        results.push({
+          losses: stored.losses,
+          xp: stored.xp,
+          matches: stored.matches.length,
+          strip,
+        });
+      }
+      for (const r of results) {
+        assert.equal(r.losses, 2);
+        assert.equal(r.xp, 30);
+        assert.equal(r.matches, 2);
+        assert.match(r.strip, /30 \/ 100 XP/);
+      }
+      await context.close();
+      return results;
+    },
+  );
+
+  await check(
     `${engineName}: every screen reflows at 320, 375, 768, 1024 and 1440`,
     async () => {
       for (const mode of ["sprinting", "offline"]) {
@@ -695,6 +821,9 @@ export async function powerChecks({
       await page.keyboard.press("Enter");
       await page.getByRole("button", { name: "Enter the arena" }).focus();
       await page.keyboard.press("Enter");
+      // A new screen moves focus to <main> on the next frame; wait for that
+      // handoff, as a person would, before choosing the action.
+      await page.waitForFunction(() => document.activeElement?.id === "main");
       const attack = page.getByRole("button", { name: /^Attack/ });
       await attack.focus();
       await page.keyboard.press("Enter");

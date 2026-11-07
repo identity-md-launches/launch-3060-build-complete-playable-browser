@@ -404,6 +404,7 @@ export function BattleView({
   earnedXP,
   levelUp,
   saved,
+  overlayOpen,
 }: {
   battle: Battle;
   mods: SqueekMods;
@@ -414,6 +415,8 @@ export function BattleView({
   earnedXP: number;
   levelUp: boolean;
   saved: boolean;
+  /** True while any dialog from App is open over the battle. */
+  overlayOpen: boolean;
 }) {
   const last = battle.events.at(-1);
   const finished = battle.turn === "finished";
@@ -427,6 +430,14 @@ export function BattleView({
     if (finished && !document.querySelector("dialog[open]"))
       replay.current?.focus({ preventScroll: true });
   }, [finished]);
+  // When the battle ends behind the Leave dialog, the control that opened it
+  // is gone by the time the dialog closes. Pick focus up once it has closed,
+  // but leave it alone if the dialog returned it somewhere real.
+  useEffect(() => {
+    const active = document.activeElement;
+    if (finished && !overlayOpen && (!active || active === document.body))
+      replay.current?.focus({ preventScroll: true });
+  }, [overlayOpen]);
   const { boostedTurns, bonusDamage, bonusEnergy, events } = battle.power;
   const powered = boostedTurns > 0 || events.length > 0;
   return (

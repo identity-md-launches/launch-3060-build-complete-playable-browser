@@ -1,6 +1,7 @@
 import { type CSSProperties } from "react";
 import {
   ARENA_EVENTS,
+  currentFinishedDay,
   EXPLORER_TX,
   formatAge,
   formatDistance,
@@ -116,11 +117,13 @@ export function PowerDetails({
     stats,
     settlements,
     settlementError,
+    statsError,
     ageMs,
     checking,
     coolingDown,
   } = view;
   const reading = snapshot?.measurement ?? null;
+  const finishedDay = currentFinishedDay(stats, snapshot);
   const unknown = "Unknown";
   const heading =
     signal.status === "live"
@@ -250,9 +253,12 @@ export function PowerDetails({
       <p className="small muted">
         Verified distance is the higher of today and the last finished device
         day, which runs 12:00 to 12:00 UTC.
-        {stats?.previousDay
-          ? ` Last finished day: ${formatDistance(stats.previousDay.distanceMm)}.`
-          : " The last finished day is not available."}
+        {finishedDay
+          ? ` Last finished day, ${finishedDay.date}: ${formatDistance(finishedDay.distanceMm)}.`
+          : stats?.previousDay && snapshot
+            ? ` The last statistics read covers ${stats.previousDay.date}, which is no longer the last finished day, so only today's distance counts.`
+            : " The last finished day is not available, so only today's distance counts."}
+        {statsError ? ` Statistics: ${statsError}` : ""}
         {snapshot && !isDistanceVerified(snapshot)
           ? " The Oracle or signer has not confirmed this reading, so distance gives no bonus."
           : ""}

@@ -443,6 +443,30 @@ export function isDistanceVerified(snapshot: StatusSnapshot): boolean {
   return signerAge <= m.staleAfterSeconds * 1000;
 }
 
+const HOUR_MS = 3_600_000;
+/**
+ * The date of the last finished device day at an API timestamp. A device day
+ * runs 12:00 to 12:00 UTC and is named for the date it starts on, so at
+ * 2026-11-07T11:55Z the last finished day is 2026-11-05, and at 12:20Z it is
+ * 2026-11-06.
+ */
+export function lastFinishedDeviceDay(at: string): string {
+  return new Date(Date.parse(at) - 36 * HOUR_MS).toISOString().slice(0, 10);
+}
+/**
+ * The statistics' last finished day, only while it is still the last finished
+ * day according to the current status response. An older statistics snapshot
+ * kept after a failed or delayed read does not count.
+ */
+export function currentFinishedDay(
+  stats: StatsSnapshot | null,
+  snapshot: StatusSnapshot | null,
+): { date: string; distanceMm: number } | null {
+  const day = stats?.previousDay;
+  if (!day || !snapshot) return null;
+  return day.date === lastFinishedDeviceDay(snapshot.generatedAt) ? day : null;
+}
+
 export function deriveModifiers(
   signal: Signal,
   snapshot: StatusSnapshot | null,
@@ -455,8 +479,12 @@ export function deriveModifiers(
   const wheel = [...WHEEL_TIERS].reverse().find((t) => rpm >= t.minRpm)!;
   // The device's daily distance resets at 12:00 UTC, while hamsters run at
   // night, so the better of today and the last finished day sets the trail.
+  // An expired day from an old statistics read is left out.
   const distance = isDistanceVerified(snapshot)
-    ? Math.max(m.distanceMm, stats?.previousDay?.distanceMm ?? 0)
+    ? Math.max(
+        m.distanceMm,
+        currentFinishedDay(stats, snapshot)?.distanceMm ?? 0,
+      )
     : null;
   const km = (distance ?? 0) / 1_000_000;
   const trail = [...TRAIL_TIERS].reverse().find((t) => km >= t.minKm)!;

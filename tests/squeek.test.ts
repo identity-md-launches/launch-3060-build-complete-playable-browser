@@ -5,16 +5,19 @@ import {
   act,
   applyArenaEvent,
   createBattle,
+  dropSurge,
   freshProgress,
   recordBattle,
   type Battle,
 } from "../src/game.ts";
 import {
   classifySignal,
+  currentFinishedDay,
   deriveModifiers,
   detectSettlementEvent,
   formatDistance,
   formatRpm,
+  lastFinishedDeviceDay,
   NEUTRAL_MODS,
   OFFLINE_AFTER_MS,
   parseSettlements,
@@ -252,6 +255,43 @@ test("The trail uses the better of today and the last finished device day", () =
   assert.equal(longer.verifiedDistanceMm, 8_000_000);
 });
 
+test("The last finished device day follows the documented 12:00 UTC boundary", () => {
+  assert.equal(lastFinishedDeviceDay("2026-11-07T00:11:04.839Z"), "2026-11-05");
+  assert.equal(lastFinishedDeviceDay("2026-11-07T11:59:59.999Z"), "2026-11-05");
+  assert.equal(lastFinishedDeviceDay("2026-11-07T12:00:00.000Z"), "2026-11-06");
+  assert.equal(lastFinishedDeviceDay("2026-11-07T12:20:00.000Z"), "2026-11-06");
+});
+
+test("An expired statistics snapshot gives no historical distance bonus", () => {
+  // Real fixture: previousDay is 2026-11-05 at 6,348,818 mm.
+  const stats = parseStats(fixture("stats"));
+  const at = (generatedAt: string) =>
+    statusWith((b) => {
+      b.generatedAt = generatedAt;
+      b.measurement.receivedAt = generatedAt;
+      b.signer.lastVerifiedAt = generatedAt;
+      b.measurement.distanceMm = 0;
+    });
+  const before = at("2026-11-07T11:55:00.000Z");
+  assert.equal(currentFinishedDay(stats, before)?.date, "2026-11-05");
+  assert.equal(deriveModifiers(live, before, stats).damagePct, 15);
+  // After the noon rollover Nov 5 is no longer the last finished day.
+  const after = at("2026-11-07T12:20:00.000Z");
+  assert.equal(currentFinishedDay(stats, after), null);
+  const expired = deriveModifiers(live, after, stats);
+  assert.equal(expired.verifiedDistanceMm, 0);
+  assert.equal(expired.trailTier, "No trail");
+  assert.equal(expired.damagePct, 0);
+  // Today's verified distance still counts on its own.
+  const running = statusWith((b) => {
+    b.generatedAt = "2026-11-07T12:20:00.000Z";
+    b.measurement.receivedAt = b.generatedAt;
+    b.signer.lastVerifiedAt = b.generatedAt;
+    b.measurement.distanceMm = 2_500_000;
+  });
+  assert.equal(deriveModifiers(live, running, stats).damagePct, 10);
+});
+
 test("Distance gives nothing unless the Oracle and signer back it", () => {
   const stats = parseStats(fixture("stats"));
   const blocked = statusWith((b) => {
@@ -425,11 +465,12 @@ test("An arena event applies once and its surge lasts one hit", () => {
   assert.equal(hit.surgePct, 25);
   assert.equal(hit.events.at(-1)!.actor, "arena");
   assert.equal(applyArenaEvent(hit, rush), hit, "repeat is ignored");
-  const plain = act(battle, "player", "attack", fixed);
-  const surged = act(hit, "player", "attack", fixed);
+  const liveNeutral = boosted(0, 0);
+  const plain = act(battle, "player", "attack", fixed, liveNeutral);
+  const surged = act(hit, "player", "attack", fixed, liveNeutral);
   assert.ok(surged.enemy.hp < plain.enemy.hp);
   assert.equal(surged.surgePct, 0);
-  const defended = act(hit, "player", "defend", fixed);
+  const defended = act(hit, "player", "defend", fixed, liveNeutral);
   assert.equal(defended.surgePct, 25, "a guard turn keeps the surge");
   const over = {
     ...battle,
@@ -437,6 +478,51 @@ test("An arena event applies once and its surge lasts one hit", () => {
     turn: "finished" as const,
   };
   assert.equal(applyArenaEvent(over, rush), over);
+});
+
+test("A Block rush surge is lost, not used, once the signal is not live", () => {
+  const blockRush: ArenaEvent = {
+    key: "settlement:272",
+    kind: "block-rush",
+    name: "Block rush",
+    energy: 20,
+    surgePct: 25,
+    transactionHash: "0x" + "b".repeat(64),
+    completedBlocks: 3,
+  };
+  const start = createBattle("pip", "fighter", 0, fixed, "live");
+  const rushed = applyArenaEvent(start, blockRush);
+  assert.equal(rushed.surgePct, 25);
+  const neutralHit = act(start, "player", "attack", fixed).enemy.hp;
+  assert.equal(start.enemy.hp - neutralHit, 18);
+  for (const source of ["offline", "stale", "simulated"] as const) {
+    const mods = { ...NEUTRAL_MODS, source };
+    const after = act(rushed, "player", "attack", fixed, mods);
+    assert.equal(rushed.enemy.hp - after.enemy.hp, 18, source);
+    assert.equal(after.power.bonusDamage, 0, source);
+    assert.equal(after.surgePct, 0, `${source} discards the surge`);
+    assert.doesNotMatch(after.events.at(-1)!.text, /Squeek Power/);
+    // A guard turn on a lost signal discards it too, so it cannot return later.
+    const guarded = act(rushed, "player", "defend", fixed, mods);
+    assert.equal(guarded.surgePct, 0, source);
+    // dropSurge cancels it before any action, with a log line.
+    const dropped = dropSurge(rushed, source);
+    assert.equal(dropped.surgePct, 0);
+    assert.match(dropped.events.at(-1)!.text, /no longer live/);
+    assert.equal(
+      rushed.enemy.hp -
+        act(dropped, "player", "attack", fixed, boosted(0, 0)).enemy.hp,
+      18,
+    );
+  }
+  assert.equal(dropSurge(rushed, "live"), rushed);
+  assert.equal(dropSurge(start, "offline"), start, "nothing to cancel");
+  // The AI's turn never consumes or cancels the player's surge.
+  const enemyTurn = { ...rushed, turn: "enemy" as const };
+  assert.equal(act(enemyTurn, "enemy", "attack", fixed).surgePct, 25);
+  // While live, the same surge adds 25%.
+  const liveHit = act(rushed, "player", "attack", fixed, boosted(0, 0));
+  assert.equal(rushed.enemy.hp - liveHit.enemy.hp, 23);
 });
 
 test("Match records keep what the wheel did, and recording twice changes nothing", () => {
